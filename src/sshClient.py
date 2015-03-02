@@ -25,6 +25,23 @@ class SshClient(object):
                 sshConfig.parse(f)
         return sshConfig
 
+    def runScpPut(self, instance, sourcePath, remotePath):
+        sshConfig = self.getSshConfig()
+        dnsName = instance.public_dns_name
+        
+        sshKeys = self.getSshKeyFilesForHost(dnsName, sshConfig)
+        
+        transport = paramiko.Transport((dnsName, 22)) 
+        try:
+            for key in sshKeys:
+                privateKey = paramiko.pkey.PKey.from_private_key_file(key)
+                transport.connect(username=ubuntu, pkey=privateKey)
+                sftpClient = paramiko.SFTPClient.from_transport(transport)
+                sftpClient.put(sourcePath, remotePath)
+        finally:
+            sftpClient.close()
+            transport.close()
+
     def runSsh(self, instances, command):
         threads = []
         results = {}
