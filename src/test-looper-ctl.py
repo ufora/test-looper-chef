@@ -11,7 +11,7 @@ Usage:
     test-looper-ctl terminate (all | <worker>...)
     test-looper-ctl run <command> (all | <worker>...) [-i <keyfile>] [--sequentially]
     test-looper-ctl launch image [--image-id <image>] [--instance-type <type>]
-    test-looper-ctl create image [--image-id <image>] [--instance-type <type>]
+    test-looper-ctl create image [--image-id <image>] [--instance-type <type>] [-i <keyfile>]
     test-looper-ctl save image <instance> [--terminate-after-save]
 
 Options:
@@ -131,12 +131,13 @@ import dateutil
 import datetime
 import sys
 
-import src.sshClient
+import src.sshClient as sshClient
 import ufora.core.SubprocessRunner as SubprocessRunner
 import ufora.test.TestLooperRedisConnection as TestLooperRedisConnection
-import ufora.test.TestLooperEc2Connection as TestLooperEc2Connection
+import src.TestLooperEc2Connection as TestLooperEc2Connection
 
-verbs = ['list', 'set', 'add', 'stop', 'start', 'restart', 'run', 'reboot', 'terminate', 'launch', 'save']
+verbs = ['list', 'set', 'add', 'stop', 'start', 'restart', 'run', 'reboot', \
+         'terminate', 'launch', 'save', 'create']
 
 multiple_images_with_current_tag_error_message = \
     "Error: More than image is marked as 'current'. " + \

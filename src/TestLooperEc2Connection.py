@@ -1,9 +1,11 @@
 import boto
 import datetime
 import itertools
-import time
-import threading
+import os
 import sys
+import time
+
+import src.sshClient as sshClient
 
 looper_security_group = 'looper'
 image_builder_security_group = 'dev-security-group'
@@ -14,6 +16,8 @@ looper_spot_request_role = 'test-looper'
 looper_current_image_tag = 'current'
 looper_instance_profile_arn = 'arn:aws:iam::793532271015:instance-profile/test-looper'
 all_states_except_terminated = ['pending', 'running', 'shutting-down', 'stopping', 'stopped']
+
+install_worker_dependencies_file = "install-worker-dependencies.py"
 
 class EC2Connection(object):
     def __init__(self):
@@ -158,12 +162,14 @@ class EC2Connection(object):
         return runningInstances
 
 class Images(object):
-    def __init__(self, image=None, instanceType=None, instanceId=None, terminateAfterSave=False):
+    def __init__(self, image=None, instanceType=None, instanceId=None, 
+                 terminateAfterSave=False, sshKeyFile=None, sequentially=None):
         self.ec2 = EC2Connection()
         self.image = image
         self.instanceType = instanceType
         self.instanceId = instanceId
         self.terminateAfterSave = terminateAfterSave
+        self.sshClient = sshClient.SshClient(sshKeyFile, sequentially)
 
 
     def list(self):
@@ -204,9 +210,6 @@ class Images(object):
         print "Setting 'current' tag on %s" % imageId
         newImage[0].add_tag('current')
 
-    def create(self):
-        """ Create a new test-looper image """
-
     def launch(self):
         image = self.image
         if image is None:
@@ -227,6 +230,7 @@ class Images(object):
             if instances is None:
                 return
             print "New instance started at %s" % instances[0].public_dns_name
+            return instances
         except boto.exception.EC2ResponseError as e:
             print "Error: cannot launch instance. %s" % e.error_message
             return
@@ -243,3 +247,26 @@ class Images(object):
         if self.terminateAfterSave:
             self.ec2.terminateInstances([self.instanceId])
 
+    def create(self):
+        """create a worker image."""
+        if self.image is None:
+            self.image = 'ami-84562dec'
+
+        instances = self.launch()
+
+        assert len(instances) == 1
+        instance = instances[0]
+
+        self.copyInstallWorkerDependenciesScript(instance)
+        self.runInstallWorkerDependenciesScript(instance)
+        self.save()
+
+    def copyInstallWorkerDependenciesScript(self, instance):
+        installScriptPath = os.path.join(
+            os.path.dirname(__file__), 
+            '../deploy/worker/' + install_worker_dependencies_file
+            )
+        self.sshClient.runScpPut(instance, installScriptPath, install_worker_dependencies_file)
+
+    def runInstallWorkerDependenciesScript(self, instance):
+        self.sshClient.runSsh([instance], 'python ' + install_worker_dependencies_file)
