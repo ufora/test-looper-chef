@@ -126,15 +126,12 @@ import boto
 import docopt
 import itertools
 import time
-import threading
 import dateutil.parser
 import dateutil
 import datetime
-import os
 import sys
 
-import paramiko
-
+import src.sshClient
 import ufora.core.SubprocessRunner as SubprocessRunner
 import ufora.test.TestLooperRedisConnection as TestLooperRedisConnection
 import ufora.test.TestLooperEc2Connection as TestLooperEc2Connection
@@ -188,8 +185,7 @@ class Workers(object):
         self.workers = workers
         self.command = command
         self.price = price
-        self.sshKeyFile = sshKeyFile
-        self.sequentially = sequentially
+        self.sshClient = sshClient.SshClient(sshKeyFile, sequentially)
 
 
     def list(self):
@@ -258,7 +254,7 @@ class Workers(object):
         #if self.workers is not None and len(instances) < len(self.workers):
             #print "%d of the specified instances are not available. Do you want to contin
         print "%d loopers will be stopped." % len(instances)
-        self.runSsh(
+        self.sshClient.runSsh(
             instances,
             "sudo stop test-looper; sudo projects/src/ufora/scripts/killexp python; sudo ps aux | grep python"
             )
@@ -268,7 +264,7 @@ class Workers(object):
         instances = self.ec2.getLooperInstances(self.workers)
         #if self.workers is not None and len(instances) < len(self.workers):
             #print "%d of the specified instances are not available. Do you want to contin
-        self.runSsh(instances, "sudo start test-looper")
+        self.sshClient.runSsh(instances, "sudo start test-looper")
 
     def reboot(self):
         instances = self.ec2.getLooperInstances(self.workers)
@@ -284,7 +280,7 @@ class Workers(object):
 
     def run(self):
         instances = self.ec2.getLooperInstances(self.workers)
-        self.runSsh(instances, self.command)
+        self.sshClient.runSsh(instances, self.command)
 
 
     def printWorkerHeaders(self):
@@ -300,69 +296,6 @@ class Workers(object):
                  str(datetime.datetime.utcnow() - dateutil.parser.parse(instance['launch_time']).replace(tzinfo=None))
                  )
 
-    def getSshKeyFilesForHost(self, host, config):
-        if self.sshKeyFile:
-            return [self.sshKeyFile]
-        else:
-            options = config.lookup(host)
-            if 'identityfile' in options:
-                return [os.path.expanduser(o) for o in options['identityfile']]
-        return []
-
-
-
-    def getSshConfig(self):
-        configfile = os.path.expanduser('~/.ssh/config')
-        sshConfig = paramiko.SSHConfig()
-
-        if os.path.exists(configfile):
-            with open(configfile, 'r') as f:
-                sshConfig.parse(f)
-        return sshConfig
-
-
-    def runSsh(self, instances, command):
-        threads = []
-        results = {}
-        sshConfig = self.getSshConfig()
-
-        for instance in sorted(instances, key=lambda i: i.public_dns_name):
-            print instance, instance.public_dns_name
-
-        for instance in sorted(instances, key=lambda i: i.public_dns_name):
-            def execute(dnsName):
-                ssh = paramiko.SSHClient()
-                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                sshKeys = self.getSshKeyFilesForHost(dnsName, sshConfig)
-                for key in sshKeys:
-                    try:
-                        ssh.connect(dnsName, username='ubuntu', key_filename=key)
-                    except paramiko.AuthenticationException:
-                        continue
-
-                    try:
-                        stdin, stdout, stderr = ssh.exec_command(command)
-                        results[dnsName] = "".join(stdout.readlines() + stderr.readlines())
-                    finally:
-                        ssh.close()
-
-            thread = threading.Thread(target=execute, args=(instance.public_dns_name,))
-            threads.append((instance.public_dns_name, thread))
-
-        if not self.sequentially:
-            for dns, t in threads:
-                t.start()
-
-        got = 0
-        for dns, t in threads:
-            if self.sequentially:
-                t.start()
-            t.join()
-            print "received ", got, " / ", len(threads), " from ", dns
-            got += 1
-
-            print '*******************'
-            print results[dns], '\n\n'
 
 
 
@@ -377,7 +310,8 @@ def getCommand(args):
                 image=image,
                 instanceType=args['--instance-type'],
                 instanceId=args['<instance>'],
-                terminateAfterSave=args['--terminate-after-save']
+                terminateAfterSave=args['--terminate-after-save'],
+                sshKeyFile=args['--keyfile']
                 )
     return Workers(
         workers=None if args['all'] else args['<worker>'],
