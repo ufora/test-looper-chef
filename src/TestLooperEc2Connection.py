@@ -33,6 +33,7 @@ class EC2Connection(object):
         return self.ec2.get_all_instances(
             ids,
             {
+                #'group-name': 'dev-security-group', #looper_security_group,
                 'group-name': looper_security_group,
                 'instance-state-name': all_states_except_terminated
             })
@@ -235,6 +236,63 @@ class Images(object):
             print "Error: cannot launch instance. %s" % e.error_message
             return
 
+    def launchAndWait(self):
+        instances = self.launch()
+        assert len(instances) == 1
+        instance = instances[0]
+
+        self.waitForInstance(instance)
+        return instance
+
+    def waitForInstance(self, instance):
+        self.waitUntilRunning(instance)
+        self.waitUntilOkStatus(instance)
+
+    def waitUntilRunning(self, instance, timeout=360):
+        t0 = time.time()
+        instanceId = instance.id
+        sys.stdout.write("waiting for instance %s to run ..." % instanceId)
+        sys.stdout.flush()
+        while True:
+            instances = [i for r in self.ec2.ec2.get_all_instances(instance_ids=[instanceId]) for i in r.instances]
+            assert len(instances) == 1
+            _instance = instances[0]
+            if _instance.state == 'running':
+                print "instance %s is running!" % instanceId
+                return
+            else:
+                print 'waiting for instance to run ... current state: ', _instance.state
+                time.sleep(2)
+                if time.time() - t0 > timeout:
+                    raise TimeoutException()
+            
+
+    def waitUntilOkStatus(self, instance, timeout=360):
+        t0 = time.time()
+        instanceId = instance.id
+        sys.stdout.write("waiting for instance %s to have system and instance statuses 'ok' ..." % instanceId)
+        sys.stdout.flush()
+        retryIx = 0
+        while True:
+            instanceStatuses = {
+                s.id: s for s in self.ec2.ec2.get_all_instance_status(instance_ids=[instanceId])
+                }
+            print "instanceStatuses = ", str(instanceStatuses)
+
+            instanceStatus = instanceStatuses[instanceId]
+            if instanceStatus.system_status.status == 'ok' and \
+               instanceStatus.instance_status.status == 'ok':
+                print "instance %s has system_status and instance_status 'ok'!" % instanceId
+                return
+            else:
+                retryIx += 1
+                print "retryIx = %s. waiting for (system_status, instance_status) to both be 'ok' ... " + \
+                    "current values %s, %s, respectively" % (retryIx, instanceStatus.system_status.status, 
+                                                             instanceStatus.instance_status.status)
+                time.sleep(2)
+                if time.time() - t0 > timeout:
+                    raise TimeoutException()
+
     def save(self):
         imageId = self.ec2.saveImage(self.instanceId, looper_image_name_prefix)
         print "Creating new image:", imageId
@@ -252,10 +310,7 @@ class Images(object):
         if self.image is None:
             self.image = 'ami-84562dec'
 
-        instances = self.launch()
-
-        assert len(instances) == 1
-        instance = instances[0]
+        instance = self.launchAndWait()
 
         self.copyInstallWorkerDependenciesScript(instance)
         self.runInstallWorkerDependenciesScript(instance)

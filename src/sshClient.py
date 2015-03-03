@@ -28,10 +28,11 @@ class SshClient(object):
     def runScpPut(self, instance, sourcePath, remotePath):
         sshConfig = self.getSshConfig()
         dnsName = instance.public_dns_name
+
         sshKeys = self.getSshKeyFilesForHost(dnsName, sshConfig)
+
         transport = paramiko.Transport((dnsName, 22)) 
         sftpClient = None
-
         try:
             for key in sshKeys:
                 # it seems you can't use key_filename, 
