@@ -8,7 +8,7 @@ def installDocker():
     subprocess.check_output("sudo apt-get install -y docker.io", shell=True)
 
     # configure docker to run without root
-    subprocess.check_output("sudo groupadd docker", shell=True)
+    subprocess.check_output("sudo groupadd -f docker", shell=True)
     subprocess.check_output("sudo gpasswd -a ${USER} docker", shell=True)
     subprocess.check_output("sudo service docker.io restart", shell=True)
 
