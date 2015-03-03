@@ -9,7 +9,7 @@ respawn
 respawn limit 20 40
 
 env HOME=/home/<%= @service_account %>
-env PYTHONPATH=<%= @src_dir %>
+env PYTHONPATH=<%= @src_dir %>/current
 env LOG_FILE=/var/log/test-looper-server.log
 env STACK_FILE=/var/log/test-looper-server.log.stack
 env GITHUB_LOGIN=<%= @github_login %>
