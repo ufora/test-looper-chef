@@ -1,0 +1,41 @@
+description "test-looper-server"
+author      "ufora"
+
+setuid <%= @service_account %>
+setgid <%= @service_account %>
+
+start on filesystem and started networking and started redis-server
+respawn
+respawn limit 20 40
+
+env HOME=/home/<%= @service_account %>
+env PYTHONPATH=<%= @src_dir %>
+env LOG_FILE=/var/log/test-looper-server.log
+env STACK_FILE=/var/log/test-looper-server.log.stack
+env GITHUB_LOGIN=<%= @github_login %>
+env GITHUB_TOKEN=<%= @github_token %>
+env TEST_LOOPER_GITHUB_SECRET=<%= @test_looper_github_auth_secret %>
+env TEST_LOOPER_TASKS_ROOT=$HOME/.test_looper_tasks
+
+
+# used by TestLooperAutomatedDeploy subsystem
+env TEST_LOOPER_SERVER_BUILD_DIR=/mnt/deploy-src
+env INSTALL_DEPENDENCIES_EXPECTED_VERSION=7c69b38771e10af88e992cb2313becfc44e74dab
+
+
+# belong to test-looper@ufora.com
+env TEST_LOOPER_APP_CLIENT_ID=dd3552ae28be6a190f29
+env TEST_LOOPER_APP_CLIENT_SECRET=<%= @test_looper_github_app_client_secret %>
+
+env TZ=US/Eastern
+
+pre-start script
+    cd $PYTHONPATH
+    git remote update
+    git checkout -f origin/<%= @git_branch %>
+end script
+
+script
+    cd $PYTHONPATH
+    python ufora/scripts/test-looper-server.py --httpPort=8888 --stackdump $STACK_FILE >> $LOG_FILE 2>&1
+end script
