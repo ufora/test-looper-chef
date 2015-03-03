@@ -254,14 +254,16 @@ class Images(object):
         sys.stdout.write("waiting for instance %s to run ..." % instanceId)
         sys.stdout.flush()
         while True:
-            instances = [i for r in self.ec2.ec2.get_all_instances(instance_ids=[instanceId]) for i in r.instances]
+            instances = [i for r in self.ec2.ec2.get_all_instances(
+                instance_ids=[instanceId]) for i in r.instances]
             assert len(instances) == 1
             _instance = instances[0]
             if _instance.state == 'running':
                 print "instance %s is running!" % instanceId
                 return
             else:
-                print 'waiting for instance to run ... current state: ', _instance.state
+                print 'waiting for instance to run ... ' + \
+                    'current state: ', _instance.state
                 time.sleep(2)
                 if time.time() - t0 > timeout:
                     raise TimeoutException()
@@ -270,25 +272,32 @@ class Images(object):
     def waitUntilOkStatus(self, instance, timeout=360):
         t0 = time.time()
         instanceId = instance.id
-        sys.stdout.write("waiting for instance %s to have system and instance statuses 'ok' ..." % instanceId)
+        sys.stdout.write(
+            "waiting for instance %s " % instanceId + \
+            " to have system and instance statuses 'ok' ..."
+            )
         sys.stdout.flush()
         retryIx = 0
         while True:
             instanceStatuses = {
-                s.id: s for s in self.ec2.ec2.get_all_instance_status(instance_ids=[instanceId])
+                s.id: s for s in self.ec2.ec2.get_all_instance_status(
+                    instance_ids=[instanceId])
                 }
             print "instanceStatuses = ", str(instanceStatuses)
 
             instanceStatus = instanceStatuses[instanceId]
             if instanceStatus.system_status.status == 'ok' and \
                instanceStatus.instance_status.status == 'ok':
-                print "instance %s has system_status and instance_status 'ok'!" % instanceId
+                print "instance %s has 'ok' system and instance statuses" % instanceId
                 return
             else:
                 retryIx += 1
-                print "retryIx = %s. waiting for (system_status, instance_status) to both be 'ok' ... " % retryIx + \
-                    "current values %s, %s, respectively" % (instanceStatus.system_status.status, 
-                                                             instanceStatus.instance_status.status)
+                print "retryIx = %s. " % retryIx + \
+                    ". Waiting for (system_status, instance_status)" + \
+                    " to both be 'ok' ... " + \
+                    "current values: (%s, %s), respectively" % (
+                        instanceStatus.system_status.status, 
+                        instanceStatus.instance_status.status)
                 time.sleep(2)
                 if time.time() - t0 > timeout:
                     raise TimeoutException()
@@ -323,7 +332,10 @@ class Images(object):
             os.path.dirname(__file__), 
             '../deploy/worker/' + install_worker_dependencies_file
             )
-        self.sshClient.runScpPut(instance, installScriptPath, install_worker_dependencies_file)
+        self.sshClient.runScpPut(
+            instance, installScriptPath, install_worker_dependencies_file)
 
     def runInstallWorkerDependenciesScript(self, instance):
-        self.sshClient.runSsh([instance], 'python ' + install_worker_dependencies_file)
+        self.sshClient.runSsh(
+            [instance], 'python ' + install_worker_dependencies_file
+            )
