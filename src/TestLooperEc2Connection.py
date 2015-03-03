@@ -164,14 +164,15 @@ class EC2Connection(object):
 
 class Images(object):
     def __init__(self, image=None, instanceType=None, instanceId=None, 
-                 terminateAfterSave=False, sshKeyFile=None, sequentially=None):
+                 terminateAfterSave=False, sshKeyFile=None, sequentially=None, 
+                 setCurrent=False):
         self.ec2 = EC2Connection()
         self.image = image
         self.instanceType = instanceType
         self.instanceId = instanceId
         self.terminateAfterSave = terminateAfterSave
         self.sshClient = sshClient.SshClient(sshKeyFile, sequentially)
-
+        self.setCurrent = setCurrent
 
     def list(self):
         images = sorted(

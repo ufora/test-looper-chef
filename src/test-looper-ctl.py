@@ -11,7 +11,7 @@ Usage:
     test-looper-ctl terminate (all | <worker>...)
     test-looper-ctl run <command> (all | <worker>...) [-i <keyfile>] [--sequentially]
     test-looper-ctl launch image [--image-id <image>] [--instance-type <type>]
-    test-looper-ctl create image [--image-id <image>] [--instance-type <type>] [-i <keyfile>]
+    test-looper-ctl create image [--image-id <image>] [--instance-type <type>] [-i <keyfile>] [--dont-set-current] [--terminate-after-save]
     test-looper-ctl save image <instance> [--terminate-after-save]
 
 Options:
@@ -312,7 +312,8 @@ def getCommand(args):
                 instanceType=args['--instance-type'],
                 instanceId=args['<instance>'],
                 terminateAfterSave=args['--terminate-after-save'],
-                sshKeyFile=args['--keyfile']
+                sshKeyFile=args['--keyfile'],
+                setCurrent=not args['--dont-set-current']
                 )
     return Workers(
         workers=None if args['all'] else args['<worker>'],
