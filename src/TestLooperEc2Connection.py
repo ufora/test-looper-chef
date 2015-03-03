@@ -286,8 +286,8 @@ class Images(object):
                 return
             else:
                 retryIx += 1
-                print "retryIx = %s. waiting for (system_status, instance_status) to both be 'ok' ... " + \
-                    "current values %s, %s, respectively" % (retryIx, instanceStatus.system_status.status, 
+                print "retryIx = %s. waiting for (system_status, instance_status) to both be 'ok' ... " % retryIx + \
+                    "current values %s, %s, respectively" % (instanceStatus.system_status.status, 
                                                              instanceStatus.instance_status.status)
                 time.sleep(2)
                 if time.time() - t0 > timeout:
@@ -314,6 +314,8 @@ class Images(object):
 
         self.copyInstallWorkerDependenciesScript(instance)
         self.runInstallWorkerDependenciesScript(instance)
+
+        self.instanceId = instance.id
         self.save()
 
     def copyInstallWorkerDependenciesScript(self, instance):

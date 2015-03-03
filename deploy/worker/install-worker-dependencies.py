@@ -3,22 +3,24 @@
 import subprocess
 import sys
 
-def installDocker():
+def installAptPackages():
     subprocess.check_output("sudo apt-get update", shell=True)
     subprocess.check_output("sudo apt-get install -y docker.io", shell=True)
-
+    subprocess.check_output("sudo apt-get install -y python-pip", shell=True)
+    
+def configureDocker():
     # configure docker to run without root
     subprocess.check_output("sudo groupadd -f docker", shell=True)
     subprocess.check_output("sudo gpasswd -a ${USER} docker", shell=True)
     subprocess.check_output("sudo service docker.io restart", shell=True)
 
 def installPythonModules():
-    subprocess.check_output("sudo pip install boto")
-
+    subprocess.check_output("sudo pip install boto", shell=True)
 
 def main():
     try:
-        installDocker()
+        installAptPackages()
+        configureDocker()
         installPythonModules()
     except subprocess.CalledProcessError as e:
         print "Command '%s' exited with status '%s':\n%s" % (
