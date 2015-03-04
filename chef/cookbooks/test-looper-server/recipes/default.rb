@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-credentials = Chef::EncryptedDataBagItem.load('test_looper', 'server')
+credentials = Chef::EncryptedDataBagItem.load('test-looper', 'server')
 install_dir = node[:test_looper_server][:install_dir]
 git_branch = node[:test_looper_server][:git_branch]
 deploy_key = node[:test_looper_server][:github_deploy_key]
