@@ -6,18 +6,19 @@
 current_dir = File.dirname(__FILE__)
 user_email  = `git config --get user.email`
 home_dir    = ENV['HOME'] || ENV['HOMEDRIVE']
+chef_dir    = "#{home_dir}/chef-repo"
 org         = ENV['chef_org'] || 'ufora'
 
-knife_override = "#{home_dir}/.chef/knife_override.rb"
+knife_override = "#{chef_dir}/.chef/knife_override.rb"
 
 chef_server_url          "https://api.opscode.com/organizations/#{org}"
 log_level                :info
 log_location             STDOUT
 
 node_name                ENV['USER']
-client_key               "#{home_dir}/.chef/#{node_name}.pem"
+#client_key               "#{chef_dir}/.chef/#{node_name}.pem"
 cache_type               'BasicFile'
-cache_options( :path => "#{home_dir}/.chef/checksums" )
+cache_options( :path => "#{chef_dir}/.chef/checksums" )
 
 cookbook_path            ["#{current_dir}/../cookbooks"]
 cookbook_copyright       "Ufora, Inc."
