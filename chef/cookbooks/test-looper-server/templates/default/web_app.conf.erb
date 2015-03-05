@@ -1,6 +1,6 @@
 <VirtualHost *:80>
-    ServerName ccache.ufora.com
-    Redirect / https://ccache.ufora.com/
+    ServerName <%= @params[:server_name] %>
+    Redirect / https://<%= @params[:server_name] %>/
 </VirtualHost>
 
 
@@ -23,5 +23,5 @@
     ProxyVia Off
     ProxyPass               / http://localhost:8888/ retry=1
     ProxyPassReverse        / http://localhost:8888/
-    ProxyPassReverse        / http://ccache.ufora.com/
+    ProxyPassReverse        / http://<%= @params[:server_name] %>/
 </VirtualHost>

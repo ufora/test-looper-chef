@@ -15,6 +15,7 @@ include_recipe 'test-looper-server::python-modules'
 credentials = Chef::EncryptedDataBagItem.load('test-looper', 'server')
 service_account = node[:test_looper_server][:service_account]
 install_dir = node[:test_looper_server][:install_dir]
+dnsname = node[:test_looper_server][:dnsname]
 src_dir = "#{install_dir}/src"
 service_dir = "#{src_dir}/current"
 ssh_dir = "#{install_dir}/.ssh"
@@ -104,5 +105,9 @@ end
 
 web_app "test-looper-proxy" do
   template "web_app.conf.erb"
+  server_name dnsname
+end
 
+apache_site "test-looper-proxy" do
+  enable true
 end
