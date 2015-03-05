@@ -7,10 +7,11 @@ Setting up your workstation:
 2. Create a ~/chef-repo directory. This will act as your local "chef server".
 3. Create a ~/chef-repo/.chef directory
 4. Create a symlink ~/chef-repo/.chef/kitchen.rb pointing at /chef/.chef/kitchen.rb in this repo.
-5. Define the EDITOR environment variable and point it at your editor of choice.
-6. Create an encryption key for your chef environment:
+5. Run `chef gem install knife-zero`
+6. Define the EDITOR environment variable and point it at your editor of choice.
+7. Create an encryption key for your chef environment:
    openssl rand -base64 512 > ~/chef-repo/encrypted_data_bag_secret
-7. Create an encrypted data bag with all deployment secrets:
+8. Create an encrypted data bag with all deployment secrets:
    knife data bag create -z --secret-file ~/chef-repo/encrypted_data_bag_secret test-looper server
 
    This will open a text editor with a skeleton json file. You'll need to add the following keys:
