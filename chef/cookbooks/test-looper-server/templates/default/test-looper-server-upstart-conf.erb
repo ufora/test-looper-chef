@@ -9,13 +9,14 @@ respawn
 respawn limit 20 40
 
 env HOME=/home/<%= @service_account %>
-env PYTHONPATH=<%= @src_dir %>/current
-env LOG_FILE=/var/log/test-looper-server.log
-env STACK_FILE=/var/log/test-looper-server.log.stack
+env PYTHONPATH=<%= @service_dir %>/current
+env GIT_SSH=<%= @git_ssh_wrapper %>
+env LOG_FILE=<%= @log_file %>
+env STACK_FILE=<%= @stack_file %>
 env GITHUB_LOGIN=<%= @github_login %>
 env GITHUB_TOKEN=<%= @github_token %>
 env TEST_LOOPER_GITHUB_SECRET=<%= @test_looper_github_auth_secret %>
-env TEST_LOOPER_TASKS_ROOT=$HOME/.test_looper_tasks
+env TEST_LOOPER_TASKS_ROOT=<%= @tasks_root %>
 
 
 # used by TestLooperAutomatedDeploy subsystem

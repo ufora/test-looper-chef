@@ -1,4 +1,30 @@
 # test-looper-server
 
-TODO: Enter the cookbook description here.
+Deploys and configures test-looper-server and all its dependencies
 
+Setting up your workstation:
+1. Install ChefDK
+2. Create a ~/chef-repo directory. This will act as your local "chef server".
+3. Create a ~/chef-repo/.chef directory
+4. Create a symlink ~/chef-repo/.chef/kitchen.rb pointing at /chef/.chef/kitchen.rb in this repo.
+5. Define the EDITOR environment variable and point it at your editor of choice.
+6. Create an encryption key for your chef environment:
+   openssl rand -base64 512 > ~/chef-repo/encrypted_data_bag_secret
+7. Create an encrypted data bag with all deployment secrets:
+   knife data bag create -z --secret-file ~/chef-repo/encrypted_data_bag_secret test-looper server
+
+   This will open a text editor with a skeleton json file. You'll need to add the following keys:
+   "git_deploy_key": a github deployment key for the main repo with all new-lines replaced with "\n"
+   "github_token": copy from /etc/init/test-looper-server.conf on ccache
+   "test_looper_github_app_client_secret": copy from /etc/init/test-looper-server.conf on ccache
+   "test_looper_github_auth_secret": copy from /etc/init/test-looper-server.conf on ccache
+
+
+To deploy:
+1. From ~/chef-repo run:
+   berks vendor cookbooks -b <test-looper-repo>/chef/cookbooks/test-looper-server/Berksfile
+
+  This will create a ~/chef-repo/cookbooks directory with the test-looper-server cookbook and all its
+  dependencies.
+2. Run:
+   knife zero bootstrap <hostname> -x ubuntu -i <ssh_key> --sudo -r test-looper-server --secret-file ./encrypted_data_bag_secret

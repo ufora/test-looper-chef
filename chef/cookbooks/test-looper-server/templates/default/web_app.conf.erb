@@ -1,0 +1,27 @@
+<VirtualHost *:80>
+    ServerName ccache.ufora.com
+    Redirect / https://ccache.ufora.com/
+</VirtualHost>
+
+
+<VirtualHost *:443>
+    SSLEngine On
+    SSLProxyEngine On
+
+    SSLCertificateFile       /etc/apache2/ssl/ufora.crt
+    SSLCertificateKeyFile    /etc/apache2/ssl/ufora.key
+    SSLCertificateChainFile  /etc/apache2/ssl/ufora.ca
+
+
+    ServerAlias ci
+    <Proxy http://localhost:8888/>
+            Order deny,allow
+            Allow from all
+    </Proxy>
+    ProxyRequests Off
+    ProxyPreserveHost on
+    ProxyVia Off
+    ProxyPass               / http://localhost:8888/ retry=1
+    ProxyPassReverse        / http://localhost:8888/
+    ProxyPassReverse        / http://ccache.ufora.com/
+</VirtualHost>

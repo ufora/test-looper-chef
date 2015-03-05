@@ -8,3 +8,4 @@ version          '0.1.0'
 
 depends "apt", "= 2.6.1"
 depends "apache2", "= 3.0.1"
+depends "python", "= 1.4.6"
