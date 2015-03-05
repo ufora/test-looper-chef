@@ -71,7 +71,7 @@ end
   end
 end
 
-# Clone the repo insto the installation directory
+# Clone the repo into the installation directory
 deploy_revision src_dir do
   repo node[:test_looper_server][:git_repo]
   revision git_branch
@@ -101,6 +101,11 @@ template "/etc/init/test-looper-server.conf" do
       :test_looper_github_app_client_secret => credentials['test_looper_github_app_client_secret'],
       :tasks_root => tasks_root_dir
   })
+end
+
+service "test-looper-server" do
+  action :start
+  provider Chef::Provider::Service::Upstart
 end
 
 web_app "test-looper-proxy" do
