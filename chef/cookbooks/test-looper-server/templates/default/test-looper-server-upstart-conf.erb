@@ -7,6 +7,7 @@ setgid <%= @service_account %>
 start on filesystem and started networking and started redis-server
 respawn
 respawn limit 20 40
+kill signal SIGKILL
 
 env HOME=/home/<%= @service_account %>
 env PYTHONPATH=<%= @service_dir %>
@@ -15,7 +16,7 @@ env LOG_FILE=<%= @log_file %>
 env STACK_FILE=<%= @stack_file %>
 env GITHUB_LOGIN=<%= @github_login %>
 env GITHUB_TOKEN=<%= @github_token %>
-env TEST_LOOPER_GITHUB_SECRET=<%= @test_looper_github_auth_secret %>
+env TEST_LOOPER_GITHUB_SECRET=<%= @test_looper_github_webhook_secret %>
 env TEST_LOOPER_TASKS_ROOT=<%= @tasks_root %>
 
 
@@ -25,7 +26,7 @@ env INSTALL_DEPENDENCIES_EXPECTED_VERSION=7c69b38771e10af88e992cb2313becfc44e74d
 
 
 # belong to test-looper@ufora.com
-env TEST_LOOPER_APP_CLIENT_ID=dd3552ae28be6a190f29
+env TEST_LOOPER_APP_CLIENT_ID=<%= @test_looper_github_oauth_app_id %>
 env TEST_LOOPER_APP_CLIENT_SECRET=<%= @test_looper_github_app_client_secret %>
 
 env TZ=US/Eastern
@@ -38,5 +39,5 @@ end script
 
 script
     cd $PYTHONPATH
-    python ufora/scripts/test-looper-server.py --httpPort=8888 --stackdump $STACK_FILE >> $LOG_FILE 2>&1
+    python ufora/scripts/test-looper-server.py --httpPort=<%= @http_port %> --stackdump $STACK_FILE >> $LOG_FILE 2>&1
 end script

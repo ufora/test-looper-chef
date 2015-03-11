@@ -15,10 +15,16 @@ Setting up your workstation:
    knife data bag create -z --secret-file ~/chef-repo/encrypted_data_bag_secret test-looper server
 
    This will open a text editor with a skeleton json file. You'll need to add the following keys:
+   "github_api_token": a GitHub authentication token associated with the account identified by the
+                       'github_login' attribute (ufora-bot by default)
+   "test_looper_github_webhook_secret": the secret associated with the GitHub web hook defined for 
+                                        a test-looper deployment
+   "test_looper_github_app_client_secret": the Client Secret of the GitHub OAuth application defined for
+                                           a test-looper deployment
    "git_deploy_key": a github deployment key for the main repo with all new-lines replaced with "\n"
-   "github_token": copy from /etc/init/test-looper-server.conf on ccache
-   "test_looper_github_app_client_secret": copy from /etc/init/test-looper-server.conf on ccache
-   "test_looper_github_auth_secret": copy from /etc/init/test-looper-server.conf on ccache
+   "ssl_public_cert": the public .crt file to be deployed as an SSL certificate
+   "ssl_private_key": the private .key file to be deployed as an SSL certificate
+   "ssl_chain": the .ca file to be deployed as an SSL certificate
 
 
 To deploy:

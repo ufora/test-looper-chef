@@ -12,10 +12,16 @@ include_recipe 'apache2::mod_proxy_http'
 include_recipe 'test-looper-server::apt-packages'
 include_recipe 'test-looper-server::python-modules'
 
-credentials = Chef::EncryptedDataBagItem.load('test-looper', 'server')
 service_account = node[:test_looper_server][:service_account]
 install_dir = node[:test_looper_server][:install_dir]
-dnsname = node[:test_looper_server][:dnsname]
+ssl_dir = node[:test_looper_server][:ssl_dir]
+
+cert_name = node[:test_looper_server][:ssl_cert_prefix]
+public_cert_file = "#{ssl_dir}/#{cert_name}.crt"
+private_key_file = "#{ssl_dir}/#{cert_name}.key"
+cert_chain_file = "#{ssl_dir}/#{cert_name}.ca"
+
+
 src_dir = "#{install_dir}/src"
 service_dir = "#{src_dir}/current"
 ssh_dir = "#{install_dir}/.ssh"
@@ -23,10 +29,25 @@ deploy_key = "#{ssh_dir}/#{node[:test_looper_server][:github_deploy_key]}"
 git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper_server][:git_ssh_wrapper]}"
 tasks_root_dir = "#{install_dir}/tasks"
 
+dnsname = node[:test_looper_server][:dnsname]
+http_port = node[:test_looper_server][:http_port]
+
 git_branch = node[:test_looper_server][:git_branch]
 
 log_file = "/var/log/test-looper-server.log"
 stack_file = "#{log_file}.stack"
+
+# Values from encrypted data bag
+secrets = Chef::EncryptedDataBagItem.load('test-looper', 'server')
+git_deploy_key = secrets['git_deploy_key']
+github_token = secrets['github_api_token']
+test_looper_github_webhook_secret = secrets['test_looper_github_webhook_secret']
+test_looper_github_oauth_app_id = node[:test_looper_server][:github_oauth_app_id]
+test_looper_github_app_client_secret = secrets['test_looper_github_app_client_secret']
+
+ssl_private_key = secrets['ssl_private_key']
+ssl_public_cert = secrets['ssl_public_cert']
+ssl_chain = secrets['ssl_chain']
 
 
 # Create a user to run the service
@@ -46,7 +67,27 @@ end
 
 # Create the git ssh key (deployment key)
 file deploy_key do
-  content credentials['git_deploy_key']
+  content git_deploy_key
+  owner service_account
+  group service_account
+  mode '0700'
+end
+
+# Copy SSL Certificate
+file public_cert_file do
+  content ssl_public_cert
+  owner service_account
+  group service_account
+  mode '0700'
+end
+file private_key_file do
+  content ssl_private_key
+  owner service_account
+  group service_account
+  mode '0700'
+end
+file cert_chain_file do
+  content ssl_chain
   owner service_account
   group service_account
   mode '0700'
@@ -96,23 +137,34 @@ template "/etc/init/test-looper-server.conf" do
       :stack_file => stack_file,
       :git_branch => git_branch,
       :github_login => node[:test_looper_server][:github_login],
-      :github_token => credentials['github_token'],
-      :test_looper_github_auth_secret => credentials['test_looper_github_auth_secret'],
-      :test_looper_github_app_client_secret => credentials['test_looper_github_app_client_secret'],
-      :tasks_root => tasks_root_dir
+      :github_token => github_token,
+      :test_looper_github_webhook_secret => test_looper_github_webhook_secret,
+      :test_looper_github_oauth_app_id => test_looper_github_oauth_app_id,
+      :test_looper_github_app_client_secret => test_looper_github_app_client_secret,
+      :tasks_root => tasks_root_dir,
+      :http_port => http_port
   })
 end
 
-service "test-looper-server" do
-  action :start
-  provider Chef::Provider::Service::Upstart
-end
 
 web_app "test-looper-proxy" do
   template "web_app.conf.erb"
   server_name dnsname
+  cert_file public_cert_file
+  cert_key private_key_file
+  cert_chain cert_chain_file
+  http_port http_port
 end
 
 apache_site "test-looper-proxy" do
   enable true
+end
+
+service "test-looper-server" do
+  action [:stop, :start]
+  provider Chef::Provider::Service::Upstart
+end
+
+service "apache2" do
+  action :restart
 end
