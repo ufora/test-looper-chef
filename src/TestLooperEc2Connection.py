@@ -128,10 +128,11 @@ class EC2Connection(object):
         return self.getLooperImages(filters={'tag-key': looper_current_image_tag})
 
 
-    def requestLooperInstances(self, ami, max_bid, instance_type="m3.xlarge"):
+    def requestLooperInstances(self, ami, max_bid, instance_type="m3.xlarge", user_data=None):
         self.ec2.request_spot_instances(
             price = max_bid,
             image_id = ami,
+            user_data=user_data,
             security_groups=[looper_security_group],
             instance_type=instance_type,
             key_name="test_looper",

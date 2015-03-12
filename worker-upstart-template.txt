@@ -1,0 +1,31 @@
+#!/bin/sh
+
+upstart_contents='
+description "test-looper"
+author      "ronen"
+
+setuid ubuntu
+setgid ubuntu
+
+start on filesystem and started networking
+respawn
+respawn limit 20 5
+
+env PYTHONPATH=/home/ubuntu/projects/src
+
+pre-start script
+    cd /home/ubuntu/projects/src/
+    git remote update 
+    git checkout -f origin/test-looper-2
+end script
+
+script
+    whoami >> /var/log/test-looper.log
+    export INSTALL_DEPENDENCIES_EXPECTED_VERSION=7c69b38771e10af88e992cb2313becfc44e74dab
+    export GITHUB_LOGIN=ufora-bot
+    export GITHUB_TOKEN=4056d08182d4fc44c81d457c2ebee5722df84f6f
+    python /home/ubuntu/projects/src/ufora/scripts/test-looper.py --testLooperServerPrivateIp=$testLooperServerPrivateIp --testLooperServerPort=$testLooperServerPort --artifacts=artifacts.tar.gz --uploadResults ./projects/src testJenkins.sh tester0 >> /var/log/test-looper.log 2>&1
+end script'
+
+sudo echo "$$upstart_contents" > /etc/init/test-looper.conf
+sudo start test-looper
