@@ -10,7 +10,7 @@ include_recipe 'test-looper::python-modules'
 service_account = node[:test_looper][:service_account]
 install_dir = node[:test_looper][:install_dir]
 
-src_dir = "#{install_dir}/src"
+test_looper_src_dir = "#{install_dir}/src"
 ssh_dir = "#{install_dir}/.ssh"
 deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
 git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
@@ -28,8 +28,11 @@ user service_account do
   shell '/bin/bash'
 end
 
+home = node['etc']['passwd'][service_account]['dir']
+builder_projects_dir = home
+
 # Create installation and supporting directories
-[install_dir, ssh_dir].each do |path|
+[install_dir, test_looper_src_dir, builder_projects_dir].each do |path|
   directory path do
     owner service_account
     group service_account
@@ -79,9 +82,25 @@ template git_ssh_wrapper do
 end
 
 # Clone the repo into the installation directory
-deploy_revision src_dir do
+# this is for the test-looper branch!
+deploy_revision test_looper_src_dir do
   repo node[:test_looper][:git_repo]
   revision git_branch
+  ssh_wrapper git_ssh_wrapper
+  user service_account
+  group service_account
+  action :deploy
+
+  symlink_before_migrate.clear
+  create_dirs_before_symlink.clear
+  purge_before_symlink.clear
+  symlinks.clear
+end
+
+# clone the repo for the builder account
+deploy_revision builder_projects_dir do
+  repo node[:test_looper][:git_repo]
+  revision "master"
   ssh_wrapper git_ssh_wrapper
   user service_account
   group service_account

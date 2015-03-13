@@ -1,4 +1,4 @@
-default["test_looper"]["service_account"] = "tester0"
+default["test_looper"]["service_account"] = "ubuntu"
 default["test_looper"]["github_deploy_key"] = "id_deploy"
 default["test_looper"]["install_dir"] = "/opt/test-looper"
 
