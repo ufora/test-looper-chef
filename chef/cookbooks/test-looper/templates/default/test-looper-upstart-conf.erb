@@ -1,0 +1,31 @@
+description "test-looper"
+author      "ufora"
+
+setuid <%= @service_account %>
+setgid <%= @service_account %>
+
+# for now, going to start "manually" (TLS sends user-data script which
+# fills in __PRIVATE_IP__ and __PORT__, then launches the service
+respawn
+respawn limit 20 5
+
+env PYTHONPATH=<%= @test_looper_src_dir %>
+env LOG_FILE=<%= @log_file %>
+env STACK_FILE=<%= @stack_file %>
+
+pre-start script
+    cd $PYTHONPATH
+    git remote update 
+    git checkout -f origin/<%= @test_looper_git_branch %>
+end script
+
+env INSTALL_DEPENDENCIES_EXPECTED_VERSION=7c69b38771e10af88e992cb2313becfc44e74dab
+env GITHUB_LOGIN=<%= @github_login %>
+export GITHUB_TOKEN=<% @github_token %>
+
+# NOTE: we'll need to change the arguemtns to test-looper.py here
+# after Ronen's change
+script
+    whoami >> $LOG_FILE
+    python /home/ubuntu/projects/src/ufora/scripts/test-looper.py --testLooperServerPrivateIp=__PRIVATE_IP__ --testLooperServerPort=__PORT__ --artifacts=artifacts.tar.gz --uploadResults ./projects/src testJenkins.sh tester0 >> $LOG_FILE 2>&1
+end script

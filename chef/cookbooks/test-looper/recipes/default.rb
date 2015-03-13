@@ -15,7 +15,7 @@ ssh_dir = "#{install_dir}/.ssh"
 deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
 git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
 
-git_branch = node[:test_looper][:git_branch]
+test_looper_git_branch = node[:test_looper][:test_looper_git_branch]
 
 log_file = "/var/log/test-looper.log"
 stack_file = "#{log_file}.stack"
@@ -85,7 +85,7 @@ end
 # this is for the test-looper branch!
 deploy_revision test_looper_src_dir do
   repo node[:test_looper][:git_repo]
-  revision git_branch
+  revision test_looper_git_branch
   ssh_wrapper git_ssh_wrapper
   user service_account
   group service_account
@@ -111,3 +111,18 @@ deploy_revision builder_projects_dir do
   purge_before_symlink.clear
   symlinks.clear
 end
+
+builder_src_dir = "#{builder_projects_dir}/current"
+
+template "/etc/init/test-looper.conf" do
+  source "test-looper-upstart-conf.erb"
+  variables({
+      :service_account => service_account,
+      :test_looper_src_dir => test_looper_src_dir,
+      :log_file => log_file,
+      :stack_file => stack_file,
+      :test_looper_git_branch => test_looper_git_branch,
+      :github_login => node[:test_looper][:github_login]
+  })
+end
+
