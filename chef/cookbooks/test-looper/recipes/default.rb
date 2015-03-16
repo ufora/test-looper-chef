@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
+include_recipe 'apt'
+
 include_recipe 'test-looper::apt-packages'
 include_recipe 'test-looper::python-modules'
 
@@ -15,6 +17,10 @@ ssh_dir = "#{install_dir}/.ssh"
 deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
 git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
 
+home_dir = "/home/#{service_account}"
+builder_projects_dir = "#{home_dir}/src"
+builder_src_dir = "#{builder_projects_dir}/current"
+
 test_looper_git_branch = node[:test_looper][:test_looper_git_branch]
 
 log_file = "/var/log/test-looper.log"
@@ -24,15 +30,14 @@ secrets = Chef::EncryptedDataBagItem.load('test-looper', 'server')
 git_deploy_key = secrets['git_deploy_key']
 
 user service_account do
-  action :create
+  supports :manage_home => true
   shell '/bin/bash'
+  home home_dir
+  action :create
 end
 
-home = node['etc']['passwd'][service_account]['dir']
-builder_projects_dir = home
-
 # Create installation and supporting directories
-[install_dir, test_looper_src_dir, builder_projects_dir].each do |path|
+[home_dir, install_dir, test_looper_src_dir, ssh_dir, builder_projects_dir].each do |path|
   directory path do
     owner service_account
     group service_account
@@ -112,8 +117,6 @@ deploy_revision builder_projects_dir do
   symlinks.clear
 end
 
-builder_src_dir = "#{builder_projects_dir}/current"
-
 template "/etc/init/test-looper.conf" do
   source "test-looper-upstart-conf.erb"
   variables({
@@ -125,4 +128,3 @@ template "/etc/init/test-looper.conf" do
       :github_login => node[:test_looper][:github_login]
   })
 end
-
