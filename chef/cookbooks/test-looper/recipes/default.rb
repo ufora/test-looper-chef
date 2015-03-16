@@ -21,6 +21,9 @@ home_dir = "/home/#{service_account}"
 builder_projects_dir = "#{home_dir}/src"
 builder_src_dir = "#{builder_projects_dir}/current"
 
+core_path = "/mnt/cores"
+cumulus_data_path = '/mnt/ufora'
+
 test_looper_git_branch = node[:test_looper][:test_looper_git_branch]
 
 log_file = "/var/log/test-looper.log"
@@ -36,8 +39,10 @@ user service_account do
   action :create
 end
 
+directories = [home_dir, install_dir, test_looper_src_dir, ssh_dir, builder_projects_dir, core_path, cumulus_data_path]
+
 # Create installation and supporting directories
-[home_dir, install_dir, test_looper_src_dir, ssh_dir, builder_projects_dir].each do |path|
+directories.each do |path|
   directory path do
     owner service_account
     group service_account
@@ -57,6 +62,14 @@ end
 
 service "docker.io" do
   action :restart
+end
+
+file "/proc/sys/kernel/core_pattern" do
+  atomic_update false # without this, writing to /proc fails in ec2
+  content "#{core_path}/core.%p"
+
+  # don't write to /proc in docker (because it won't let us)
+  not_if "mount | grep 'proc on /proc/sys type proc (ro,'"
 end
 
 # Create the git ssh key (deployment key)
