@@ -316,28 +316,3 @@ class Images(object):
         if self.terminateAfterSave:
             self.ec2.terminateInstances([self.instanceId])
 
-    def create(self):
-        """create a worker image."""
-        if self.image is None:
-            self.image = 'ami-84562dec'
-
-        instance = self.launchAndWait()
-
-        self.copyInstallWorkerDependenciesScript(instance)
-        self.runInstallWorkerDependenciesScript(instance)
-
-        self.instanceId = instance.id
-        self.save()
-
-    def copyInstallWorkerDependenciesScript(self, instance):
-        installScriptPath = os.path.join(
-            os.path.dirname(__file__), 
-            '../deploy/worker/' + install_worker_dependencies_file
-            )
-        self.sshClient.runScpPut(
-            instance, installScriptPath, install_worker_dependencies_file)
-
-    def runInstallWorkerDependenciesScript(self, instance):
-        self.sshClient.runSsh(
-            [instance], 'python ' + install_worker_dependencies_file
-            )

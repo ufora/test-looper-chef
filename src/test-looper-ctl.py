@@ -11,7 +11,6 @@ Usage:
     test-looper-ctl terminate (all | <worker>...)
     test-looper-ctl run <command> (all | <worker>...) [-i <keyfile>] [--sequentially]
     test-looper-ctl launch image [--image-id <image>] [--instance-type <type>]
-    test-looper-ctl create image [--image-id <image>] [--instance-type <type>] [-i <keyfile>] [--dont-set-current] [--terminate-after-save]
     test-looper-ctl save image <instance> [--terminate-after-save]
 
 Options:
@@ -137,7 +136,7 @@ import ufora.test.TestLooperRedisConnection as TestLooperRedisConnection
 import src.TestLooperEc2Connection as TestLooperEc2Connection
 
 verbs = ['list', 'set', 'add', 'stop', 'start', 'restart', 'run', 'reboot', \
-         'terminate', 'launch', 'save', 'create']
+         'terminate', 'launch', 'save']
 
 multiple_images_with_current_tag_error_message = \
     "Error: More than image is marked as 'current'. " + \
