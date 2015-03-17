@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
+include_recipe 'apt'
+
 include_recipe 'apache2'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_proxy'

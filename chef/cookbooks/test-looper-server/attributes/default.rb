@@ -13,3 +13,5 @@ default["test_looper_server"]["git_branch"] = "test-looper"
 default["test_looper_server"]["github_deploy_key"] = "id_deploy"
 default["test_looper_server"]["github_login"] = "ufora-bot"
 default["test_looper_server"]["github_oauth_app_id"] = "eb57b8cf7f9122dad732"
+
+default['apt']['compile_time_update'] = true
