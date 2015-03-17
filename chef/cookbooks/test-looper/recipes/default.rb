@@ -31,6 +31,7 @@ stack_file = "#{log_file}.stack"
 
 secrets = Chef::EncryptedDataBagItem.load('test-looper', 'server')
 git_deploy_key = secrets['git_deploy_key']
+github_token = secrets['github_api_token']
 
 user service_account do
   supports :manage_home => true
@@ -138,6 +139,7 @@ template "/etc/init/test-looper.conf" do
       :log_file => log_file,
       :stack_file => stack_file,
       :test_looper_git_branch => test_looper_git_branch,
-      :github_login => node[:test_looper][:github_login]
+      :github_login => node[:test_looper][:github_login],
+      :github_token => github_token
   })
 end
