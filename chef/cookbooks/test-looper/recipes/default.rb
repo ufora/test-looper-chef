@@ -18,8 +18,7 @@ deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
 git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
 
 home_dir = "/home/#{service_account}"
-builder_projects_dir = "#{home_dir}/src"
-builder_src_dir = "#{builder_projects_dir}/current"
+builder_src_dir = "#{home_dir}/src"
 
 core_path = "/mnt/cores"
 cumulus_data_path = '/mnt/ufora'
@@ -31,7 +30,6 @@ stack_file = "#{log_file}.stack"
 
 secrets = Chef::EncryptedDataBagItem.load('test-looper', 'server')
 git_deploy_key = secrets['git_deploy_key']
-github_token = secrets['github_api_token']
 
 user service_account do
   supports :manage_home => true
@@ -41,7 +39,7 @@ user service_account do
 end
 
 directories = [home_dir, test_looper_install_dir, test_looper_src_dir, 
-               ssh_dir, builder_projects_dir, core_path, cumulus_data_path]
+               ssh_dir, builder_src_dir, core_path, cumulus_data_path]
 
 # Create installation and supporting directories
 directories.each do |path|
@@ -118,7 +116,7 @@ deploy_revision test_looper_src_dir do
 end
 
 # clone the repo for the builder account
-deploy_revision builder_projects_dir do
+deploy_revision builder_src_dir do
   repo node[:test_looper][:git_repo]
   revision "master"
   ssh_wrapper git_ssh_wrapper
@@ -140,7 +138,6 @@ template "/etc/init/test-looper.conf" do
       :log_file => log_file,
       :stack_file => stack_file,
       :test_looper_git_branch => test_looper_git_branch,
-      :github_login => node[:test_looper][:github_login],
-      :github_token => github_token
+      :builder_src_dir => builder_src_dir
   })
 end
