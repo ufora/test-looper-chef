@@ -1,6 +1,6 @@
 default["test_looper"]["service_account"] = "ubuntu"
 default["test_looper"]["github_deploy_key"] = "id_deploy"
-default["test_looper"]["install_dir"] = "/opt/test-looper"
+default["test_looper"]["test_looper_install_dir"] = "/opt/test-looper"
 
 default["test_looper"]["git_ssh_wrapper"] = "wrap-ssh4git.sh"
 

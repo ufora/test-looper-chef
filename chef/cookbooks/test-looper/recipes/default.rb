@@ -10,10 +10,10 @@ include_recipe 'test-looper::apt-packages'
 include_recipe 'test-looper::python-modules'
 
 service_account = node[:test_looper][:service_account]
-install_dir = node[:test_looper][:install_dir]
+test_looper_install_dir = node[:test_looper][:test_looper_install_dir]
 
-test_looper_src_dir = "#{install_dir}/src"
-ssh_dir = "#{install_dir}/.ssh"
+test_looper_src_dir = "#{test_looper_install_dir}/src"
+ssh_dir = "#{test_looper_install_dir}/.ssh"
 deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
 git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
 
@@ -40,7 +40,8 @@ user service_account do
   action :create
 end
 
-directories = [home_dir, install_dir, test_looper_src_dir, ssh_dir, builder_projects_dir, core_path, cumulus_data_path]
+directories = [home_dir, test_looper_install_dir, test_looper_src_dir, 
+               ssh_dir, builder_projects_dir, core_path, cumulus_data_path]
 
 # Create installation and supporting directories
 directories.each do |path|
