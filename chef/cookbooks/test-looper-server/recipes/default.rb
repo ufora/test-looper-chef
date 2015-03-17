@@ -42,8 +42,6 @@ stack_file = "#{log_file}.stack"
 # Values from encrypted data bag
 secrets = Chef::EncryptedDataBagItem.load('test-looper', 'server')
 git_deploy_key = secrets['git_deploy_key']
-github_token = secrets['github_api_token']
-test_looper_github_webhook_secret = secrets['test_looper_github_webhook_secret']
 test_looper_github_oauth_app_id = node[:test_looper_server][:github_oauth_app_id]
 test_looper_github_app_client_secret = secrets['test_looper_github_app_client_secret']
 
@@ -138,9 +136,6 @@ template "/etc/init/test-looper-server.conf" do
       :log_file => log_file,
       :stack_file => stack_file,
       :git_branch => git_branch,
-      :github_login => node[:test_looper_server][:github_login],
-      :github_token => github_token,
-      :test_looper_github_webhook_secret => test_looper_github_webhook_secret,
       :test_looper_github_oauth_app_id => test_looper_github_oauth_app_id,
       :test_looper_github_app_client_secret => test_looper_github_app_client_secret,
       :tasks_root => tasks_root_dir,
