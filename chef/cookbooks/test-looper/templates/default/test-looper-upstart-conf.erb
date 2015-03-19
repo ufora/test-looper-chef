@@ -8,9 +8,11 @@ respawn
 respawn limit 20 5
 
 env PYTHONPATH=<%= @test_looper_src_dir %>/current
+env GIT_SSH=<%= @git_ssh_wrapper %>
 env LOG_FILE=<%= @log_file %>
 env STACK_FILE=<%= @stack_file %>
 env BUILDER_REPO_DIR=<%= @builder_src_dir %>/current
+
 
 pre-start script
     cd $PYTHONPATH

@@ -1,6 +1,6 @@
 include_recipe 'python'
 include_recipe 'python::pip'
-pymodules = ['boto']
+pymodules = ['boto', 'requests', 'simplejson']
 
 pymodules.each do |pymodule|
   python_pip pymodule do
