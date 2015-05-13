@@ -1,0 +1,28 @@
+{
+  "server": {
+    "port": <%= @server_port %>,
+    "http_port": <%= @server_http_port %>
+    },
+
+  "github": {
+    "app_id": "<%= @github_app_id %>",
+    "app_secret": "<%= @github_app_secret %>",
+    "access_token": "<%= @github_access_token %>",
+    "webhook_secret": "<%= @github_webhook_secret %>",
+    "test_looper_branch": "<%= @github_test_looper_branch %>"
+    },
+
+  "ec2": {
+    "security_group": "<%= @ec2_security_group %>",
+    "ami": "<%= @ec2_ami %>",
+    "worker_role_name": "<%= @ec2_worker_role_name %>",
+    "worker_ssh_key_name": "<%= @ec2_worker_ssh_key_name %>",
+    "worker_root_volume_size_gb": <%= @ec2_worker_root_volume_size_gb %>,
+    "vpc_subnets": {
+        "us-west-2a": "subnet-112c9266",
+        "us-west-2b": "subnet-9046def5",
+        "us-west-2c": "subnet-7124f928"
+        }
+
+  }
+}

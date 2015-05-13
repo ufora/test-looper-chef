@@ -18,13 +18,8 @@ env TEST_LOOPER_TASKS_ROOT=<%= @tasks_root %>
 
 
 # used by TestLooperAutomatedDeploy subsystem
-env TEST_LOOPER_SERVER_BUILD_DIR=/mnt/deploy-src
-env INSTALL_DEPENDENCIES_EXPECTED_VERSION=7c69b38771e10af88e992cb2313becfc44e74dab
-
-
-# belong to ufora organization
-env TEST_LOOPER_APP_CLIENT_ID=<%= @test_looper_github_oauth_app_id %>
-env TEST_LOOPER_APP_CLIENT_SECRET=<%= @test_looper_github_app_client_secret %>
+env TEST_LOOPER_SERVER_BUILD_DIR=<%= @deploy_dir %>
+env INSTALL_DEPENDENCIES_EXPECTED_VERSION=<%= @dependencies_version %>
 
 env TZ=US/Eastern
 
@@ -36,5 +31,5 @@ end script
 
 script
     cd $PYTHONPATH
-    python ufora/scripts/test-looper-server.py --httpPort=<%= @http_port %> --stackdump $STACK_FILE >> $LOG_FILE 2>&1
+    python ufora/scripts/test-looper-server.py --config <%= @config_file %> >> $LOG_FILE 2>&1
 end script

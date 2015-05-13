@@ -1,0 +1,19 @@
+{
+  "worker": {
+    "repo_path": "<%= @worker_repo_path %>",
+    "test_artifacts": "artifacts.tar.gz",
+    "test_timeout": 1800,
+    "core_dump_dir": "<%= @worker_core_dump_dir %>",
+    "test_data_dir": "<%= @worker_test_data_dir %>"
+    },
+
+  "server": {
+    "port": __PORT__,
+    "address": "__PRIVATE_IP__"
+    },
+
+  "ec2": {
+    "test_result_bucket": "<%= @ec2_test_result_bucket %>",
+    "builds_bucket": "<%= @ec2_builds_bucket %>"
+    }
+}

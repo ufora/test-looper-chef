@@ -14,8 +14,8 @@ platforms:
 
 suites:
   - name: default
-    data_bags_path: "test/integration/default/data_bags"
-    encrypted_data_bag_secret_key_path: "test/integration/default/encrypted_data_bag_secret"
+    data_bags_path: "~/chef-repo/data_bags"
+    encrypted_data_bag_secret_key_path: "~/chef-repo/encrypted_data_bag_secret"
     run_list:
       - recipe[test-looper-server::default]
     attributes:

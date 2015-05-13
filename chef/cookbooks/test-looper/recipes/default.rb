@@ -4,13 +4,10 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-include_recipe 'apt'
-
-include_recipe 'test-looper::apt-packages'
-include_recipe 'test-looper::python-modules'
 
 service_account = node[:test_looper][:service_account]
 test_looper_install_dir = node[:test_looper][:test_looper_install_dir]
+config_file = "#{test_looper_install_dir}/test-looper.conf.json"
 
 test_looper_src_dir = "#{test_looper_install_dir}/src"
 ssh_dir = "#{test_looper_install_dir}/.ssh"
@@ -18,12 +15,14 @@ deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
 git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
 
 home_dir = "/home/#{service_account}"
-builder_src_dir = "#{home_dir}/src"
+home_bin_dir = "#{home_dir}/bin"
+test_src_dir = "#{home_dir}/src"
 
-core_path = "/mnt/cores"
-cumulus_data_path = '/mnt/ufora'
+core_dump_path = "#{test_looper_install_dir}/cores"
+test_data_path = "#{test_looper_install_dir}/ufora"
 
 test_looper_git_branch = node[:test_looper][:test_looper_git_branch]
+expected_dependencies_version = node[:test_looper][:expected_dependencies_version]
 
 log_file = "/var/log/test-looper.log"
 stack_file = "#{log_file}.stack"
@@ -38,8 +37,8 @@ user service_account do
   action :create
 end
 
-directories = [home_dir, test_looper_install_dir, test_looper_src_dir, 
-               ssh_dir, builder_src_dir, core_path, cumulus_data_path]
+directories = [home_dir, home_bin_dir, test_looper_install_dir, test_looper_src_dir,
+               ssh_dir, test_src_dir, core_dump_path, test_data_path]
 
 # Create installation and supporting directories
 directories.each do |path|
@@ -49,6 +48,46 @@ directories.each do |path|
     action :create
   end
 end
+
+include_recipe 'apt'
+include_recipe 'test-looper::apt-packages'
+include_recipe 'test-looper::python-modules'
+
+include_recipe "nodejs::npm"
+bash 'node_symlink' do
+  code 'ln -s /usr/bin/nodejs /usr/bin/node'
+  creates '/usr/bin/node'
+end
+nodejs_npm 'coffee-script'
+nodejs_npm 'mocha'
+nodejs_npm 'grunt-cli'
+nodejs_npm 'bower'
+nodejs_npm 'forever' do
+  version "0.11.1"
+end
+#directory "/home/#{service_account}/.npm" do
+  #owner service_account
+  #group service_account
+  #mode 0775
+  #action :create
+#end
+#file "/home/#{service_account}/.npmrc" do
+  #owner service_account
+  #group service_account
+  #mode 0775
+  #action :create
+#end
+#bash 'npm_prefix' do
+  #code "npm set prefix /home/#{service_account}/.npm"
+  #user service_account
+  #group service_account
+  #environment 'HOME' => "/home/#{service_account}"
+#end
+#bash 'npm_packages' do
+  #code 'npm install -g coffee-script mocha grunt-cli forever@0.11.1 bower'
+  #user service_account
+  #group service_account
+#end
 
 group "docker" do
   action :create
@@ -60,13 +99,13 @@ group "docker" do
   members service_account
 end
 
-service "docker.io" do
-  action :restart
+execute "restart docker.io" do
+  action :run
 end
 
 file "/proc/sys/kernel/core_pattern" do
   atomic_update false # without this, writing to /proc fails in ec2
-  content "#{core_path}/core.%p"
+  content "#{core_dump_path}/core.%p"
 
   # don't write to /proc in docker (because it won't let us)
   not_if "mount | grep 'proc on /proc/sys type proc (ro,'"
@@ -116,7 +155,7 @@ deploy_revision test_looper_src_dir do
 end
 
 # clone the repo for the builder account
-deploy_revision builder_src_dir do
+deploy_revision test_src_dir do
   repo node[:test_looper][:git_repo]
   revision "master"
   ssh_wrapper git_ssh_wrapper
@@ -130,14 +169,29 @@ deploy_revision builder_src_dir do
   symlinks.clear
 end
 
+template config_file do
+  source "test-looper.conf.erb"
+  owner service_account
+  group service_account
+  variables({
+    :worker_repo_path => test_src_dir,
+    :worker_core_dump_path => core_dump_path,
+    :worker_test_data_dir => test_data_path,
+    :ec2_test_result_bucket => node[:test_looper][:ec2_test_result_bucket],
+    :ec2_builds_bucket => node[:test_looper][:ec2_builds_bucket]
+    })
+end
+
 template "/etc/init/test-looper.conf" do
   source "test-looper-upstart-conf.erb"
   variables({
       :service_account => service_account,
       :test_looper_src_dir => test_looper_src_dir,
+      :git_ssh_wrapper => git_ssh_wrapper,
       :log_file => log_file,
       :stack_file => stack_file,
+      :expected_dependencies_version => expected_dependencies_version,
       :test_looper_git_branch => test_looper_git_branch,
-      :builder_src_dir => builder_src_dir
+      :config_file => config_file
   })
 end
