@@ -52,42 +52,8 @@ end
 include_recipe 'apt'
 include_recipe 'test-looper::apt-packages'
 include_recipe 'test-looper::python-modules'
+include_recipe 'test-looper::nodejs'
 
-include_recipe "nodejs::npm"
-bash 'node_symlink' do
-  code 'ln -s /usr/bin/nodejs /usr/bin/node'
-  creates '/usr/bin/node'
-end
-nodejs_npm 'coffee-script'
-nodejs_npm 'mocha'
-nodejs_npm 'grunt-cli'
-nodejs_npm 'bower'
-nodejs_npm 'forever' do
-  version "0.11.1"
-end
-#directory "/home/#{service_account}/.npm" do
-  #owner service_account
-  #group service_account
-  #mode 0775
-  #action :create
-#end
-#file "/home/#{service_account}/.npmrc" do
-  #owner service_account
-  #group service_account
-  #mode 0775
-  #action :create
-#end
-#bash 'npm_prefix' do
-  #code "npm set prefix /home/#{service_account}/.npm"
-  #user service_account
-  #group service_account
-  #environment 'HOME' => "/home/#{service_account}"
-#end
-#bash 'npm_packages' do
-  #code 'npm install -g coffee-script mocha grunt-cli forever@0.11.1 bower'
-  #user service_account
-  #group service_account
-#end
 
 group "docker" do
   action :create
