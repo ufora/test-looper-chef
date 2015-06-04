@@ -8,7 +8,7 @@ respawn
 respawn limit 20 5
 
 env HOME=/home/<%= @service_account %>
-env PYTHONPATH=<%= @test_looper_src_dir %>/current
+env PYTHONPATH=<%= @src_dir %>/current
 env GIT_SSH=<%= @git_ssh_wrapper %>
 env LOG_FILE=<%= @log_file %>
 env STACK_FILE=<%= @stack_file %>
@@ -18,11 +18,13 @@ env INSTALL_DEPENDENCIES_EXPECTED_VERSION=<%= @expected_dependencies_version %>
 pre-start script
     cd $PYTHONPATH
     git remote update
-    git checkout -f origin/<%= @test_looper_git_branch %>
+    git checkout -f origin/<%= @git_branch %>
+    ccache -M <%= @ccache_size_gb %>G
 end script
 
 
 script
     echo "Starting test-looper as `whoami`" >> $LOG_FILE
+    echo "ccache stats: `ccache -s`" >> $LOG_FILE
     python $PYTHONPATH/ufora/scripts/test-looper.py <%= @config_file %> >> $LOG_FILE 2>&1
 end script

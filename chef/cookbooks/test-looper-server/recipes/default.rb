@@ -141,6 +141,9 @@ deploy_revision src_dir do
   symlinks.clear
 end
 
+worker_config_file = "#{node[:test_looper][:install_dir]}/#{node[:test_looper][:config_file]}"
+ec2_test_result_bucket = node[:test_looper][:ec2_test_result_bucket]
+
 template config_file do
   source "test-looper-server.conf.erb"
   owner service_account
@@ -157,7 +160,9 @@ template config_file do
     :ec2_ami => ec2_looper_ami,
     :ec2_worker_role_name => ec2_worker_role_name,
     :ec2_worker_ssh_key_name => ec2_worker_ssh_key_name,
-    :ec2_worker_root_volume_size_gb => ec2_worker_root_volume_size_gb
+    :ec2_worker_root_volume_size_gb => ec2_worker_root_volume_size_gb,
+    :ec2_test_result_bucket => ec2_test_result_bucket,
+    :worker_config_file => worker_config_file
     })
 end
 
