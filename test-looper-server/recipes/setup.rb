@@ -29,7 +29,9 @@ s3 = AWS::S3.new
 bucket = node[:test_looper_server][:data_bag_bucket]
 data_bag_key = node[:test_looper_server][:data_bag_key]
 encrypted_data_bag = s3.buckets[bucket].objects[data_bag_key].read
-encrypted_data_bag_key = node[:test_looper_server][:encrypted_data_bag_key]
+encrypted_data_bag_key = node[:test_looper_server][:encrypted_data_bag_key].gsub('\n', "\n").strip
+Chef::Log.info("Data bag key: #{encrypted_data_bag_key}")
+Chef::Log.info("Raw data bag: #{encrypted_data_bag}")
 secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
 
 
