@@ -16,7 +16,7 @@ default["test_looper_server"]["github_login"] = "ufora-bot"
 default["test_looper_server"]["github_oauth_app_id"] = "eb57b8cf7f9122dad732"
 
 default["test_looper_server"]["ec2_worker_security_group"] = "sg-06382863"
-default["test_looper_server"]["ec2_worker_ami"] = "ami-2b4e771b"
+default["test_looper_server"]["ec2_worker_ami"] = "ami-5b0d346b"
 default["test_looper_server"]["ec2_worker_role_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_ssh_key_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "30"
