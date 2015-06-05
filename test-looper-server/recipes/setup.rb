@@ -28,6 +28,7 @@ deploy_dir = "#{install_dir}/deploy-src"
 #private_key_file = "#{ssl_dir}/#{cert_name}.key"
 #cert_chain_file = "#{ssl_dir}/#{cert_name}.ca"
 
+require 'aws-sdk'
 s3 = AWS::S3.new
 bucket = node[:test_looper_server][:data_bag_bucket]
 data_bag_key = node[:test_looper_server][:data_bag_key]
