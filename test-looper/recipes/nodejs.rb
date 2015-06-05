@@ -5,7 +5,9 @@ bash 'node_symlink' do
   creates '/usr/bin/node'
 end
 
-nodejs_npm 'coffee-script'
+nodejs_npm 'coffee-script' do
+  version "1.4.0"
+end
 nodejs_npm 'mocha'
 nodejs_npm 'grunt-cli'
 nodejs_npm 'bower'
