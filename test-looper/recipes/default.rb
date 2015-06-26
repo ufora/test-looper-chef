@@ -15,11 +15,11 @@ deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
 git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
 
 home_dir = "/home/#{service_account}"
-home_bin_dir = "#{home_dir}/bin"
 test_src_dir = "#{home_dir}/src"
-
-core_dump_path = "#{home_dir}/core_dumps"
-test_data_path = "#{home_dir}/test_data"
+ccache_dir = "#{home_dir}/ccache"
+build_cache_dir = "#{home_dir}/build_cache"
+core_dump_dir = "#{home_dir}/core_dumps"
+test_data_dir = "#{home_dir}/test_data"
 
 git_branch = node[:test_looper][:git_branch]
 expected_dependencies_version = node[:test_looper][:expected_dependencies_version]
@@ -37,8 +37,8 @@ user service_account do
   action :create
 end
 
-directories = [home_dir, home_bin_dir, install_dir, src_dir,
-               ssh_dir, test_src_dir, core_dump_path, test_data_path]
+directories = [home_dir, install_dir, src_dir, ssh_dir,
+               test_src_dir, ccache_dir, build_cache_dir, core_dump_dir, test_data_dir]
 
 # Create installation and supporting directories
 directories.each do |path|
@@ -71,7 +71,7 @@ end
 
 file "/proc/sys/kernel/core_pattern" do
   atomic_update false # without this, writing to /proc fails in ec2
-  content "#{core_dump_path}/core.%p"
+  content "#{core_dump_dir}/core.%p"
 
   # don't write to /proc in docker (because it won't let us)
   not_if "mount | grep 'proc on /proc/sys type proc (ro,'"
@@ -142,8 +142,10 @@ template config_file do
   group service_account
   variables({
     :worker_repo_path => "#{test_src_dir}/current",
-    :worker_core_dump_dir => core_dump_path,
-    :worker_test_data_dir => test_data_path,
+    :worker_core_dump_dir => core_dump_dir,
+    :worker_test_data_dir => test_data_dir,
+    :worker_ccache_dir => ccache_dir,
+    :worker_build_cache_dir => build_cache_dir,
     :ec2_test_result_bucket => node[:test_looper][:ec2_test_result_bucket],
     :ec2_builds_bucket => node[:test_looper][:ec2_builds_bucket]
     })
