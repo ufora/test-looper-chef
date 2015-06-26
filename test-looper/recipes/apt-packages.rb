@@ -12,6 +12,9 @@ end
 apt_package 'clang-3.5' do
   action :install
 end
+apt_package 'libclang-3.5-dev' do
+  action :install
+end
 
 apt_package 'bison' do
   action :install
