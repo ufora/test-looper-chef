@@ -137,7 +137,8 @@ ec2_worker_role_name = node[:test_looper_server][:ec2_worker_role_name]
 ec2_worker_ssh_key_name = node[:test_looper_server][:ec2_worker_ssh_key_name]
 ec2_worker_root_volume_size_gb = node[:test_looper_server][:ec2_worker_root_volume_size_gb]
 ec2_test_result_bucket = node[:test_looper][:ec2_test_result_bucket]
-worker_config_file = "#{node[:test_looper][:install_dir]}/#{node[:test_looper][:config_file]}"
+worker_install_dir = node[:test_looper][:install_dir]
+worker_config_file = "#{worker_install_dir}/#{node[:test_looper][:config_file]}"
 
 template config_file do
   source "test-looper-server.conf.erb"
@@ -157,6 +158,7 @@ template config_file do
     :ec2_worker_ssh_key_name => ec2_worker_ssh_key_name,
     :ec2_worker_root_volume_size_gb => ec2_worker_root_volume_size_gb,
     :ec2_test_result_bucket => ec2_test_result_bucket,
+    :worker_install_dir => node[:test_looper][:install_dir],
     :worker_config_file => worker_config_file
     })
 end
