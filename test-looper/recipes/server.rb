@@ -8,8 +8,8 @@
 # fairly static resources on the machine
 
 
-service_account = node[:test_looper_server][:service_account]
-home_dir = "/home/#{service_account}"
+service_account = node[:test_looper][:service_account]
+home_dir = node[:test_looper][:home_dir]
 
 install_dir = node[:test_looper_server][:install_dir]
 ssh_dir = "#{install_dir}/.ssh"
@@ -21,7 +21,7 @@ deploy_dir = "#{install_dir}/deploy-src"
 config_file = "#{install_dir}/test-looper-server.conf"
 src_dir = "#{install_dir}/src"
 service_dir = "#{src_dir}/current"
-git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper_server][:git_ssh_wrapper]}"
+git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
 
 log_file = "/var/log/test-looper-server.log"
 stack_file = "#{log_file}.stack"
@@ -29,10 +29,10 @@ stack_file = "#{log_file}.stack"
 
 require 'aws-sdk'
 s3 = AWS::S3.new
-bucket = node[:test_looper_server][:data_bag_bucket]
-data_bag_key = node[:test_looper_server][:data_bag_key]
+bucket = node[:test_looper][:data_bag_bucket]
+data_bag_key = node[:test_looper][:data_bag_key]
 encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
-encrypted_data_bag_key = node[:test_looper_server][:encrypted_data_bag_key].gsub('\n', "\n").strip
+encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
 Chef::Log.info("Data bag key: #{encrypted_data_bag_key}")
 Chef::Log.info("Raw data bag: #{encrypted_data_bag}")
 secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
@@ -114,9 +114,9 @@ end
 end
 
 # Clone the repo into the installation directory
-git_branch = node[:test_looper_server][:git_branch]
+git_branch = node[:test_looper][:git_branch]
 deploy_revision src_dir do
-  repo node[:test_looper_server][:git_repo]
+  repo node[:test_looper][:git_repo]
   revision git_branch
   ssh_wrapper git_ssh_wrapper
   user service_account
@@ -136,9 +136,9 @@ ec2_looper_ami = node[:test_looper_server][:ec2_worker_ami]
 ec2_worker_role_name = node[:test_looper_server][:ec2_worker_role_name]
 ec2_worker_ssh_key_name = node[:test_looper_server][:ec2_worker_ssh_key_name]
 ec2_worker_root_volume_size_gb = node[:test_looper_server][:ec2_worker_root_volume_size_gb]
-ec2_test_result_bucket = node[:test_looper][:ec2_test_result_bucket]
-worker_install_dir = node[:test_looper][:install_dir]
-worker_config_file = "#{worker_install_dir}/#{node[:test_looper][:config_file]}"
+ec2_test_result_bucket = node[:test_looper][:test_result_bucket]
+worker_install_dir = node[:test_looper_worker][:install_dir]
+worker_config_file = "#{worker_install_dir}/#{node[:test_looper_worker][:config_file]}"
 
 template config_file do
   source "test-looper-server.conf.erb"
@@ -158,7 +158,7 @@ template config_file do
     :ec2_worker_ssh_key_name => ec2_worker_ssh_key_name,
     :ec2_worker_root_volume_size_gb => ec2_worker_root_volume_size_gb,
     :ec2_test_result_bucket => ec2_test_result_bucket,
-    :worker_install_dir => node[:test_looper][:install_dir],
+    :worker_install_dir => node[:test_looper_worker][:install_dir],
     :worker_config_file => worker_config_file
     })
 end
@@ -174,7 +174,7 @@ template "/etc/init/test-looper-server.conf" do
       :git_branch => git_branch,
       :tasks_root => tasks_root_dir,
       :deploy_dir => deploy_dir,
-      :dependencies_version => node[:test_looper_server][:expected_dependencies_version],
+      :dependencies_version => node[:test_looper][:expected_dependencies_version],
       :config_file => config_file
   })
 end

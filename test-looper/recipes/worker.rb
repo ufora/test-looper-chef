@@ -6,8 +6,8 @@
 
 
 service_account = node[:test_looper][:service_account]
-install_dir = node[:test_looper][:install_dir]
-config_file = "#{install_dir}/#{node[:test_looper][:config_file]}"
+install_dir = node[:test_looper_worker][:install_dir]
+config_file = "#{install_dir}/#{node[:test_looper_worker][:config_file]}"
 
 src_dir = "#{install_dir}/src"
 ssh_dir = "#{install_dir}/.ssh"
@@ -49,10 +49,6 @@ directories.each do |path|
   end
 end
 
-include_recipe 'apt'
-include_recipe 'test-looper::apt-packages'
-include_recipe 'test-looper::python-modules'
-include_recipe 'test-looper::nodejs'
 
 
 group "docker" do
@@ -146,8 +142,8 @@ template config_file do
     :worker_test_data_dir => test_data_dir,
     :worker_ccache_dir => ccache_dir,
     :worker_build_cache_dir => build_cache_dir,
-    :ec2_test_result_bucket => node[:test_looper][:ec2_test_result_bucket],
-    :ec2_builds_bucket => node[:test_looper][:ec2_builds_bucket]
+    :ec2_test_result_bucket => node[:test_looper][:test_result_bucket],
+    :ec2_builds_bucket => node[:test_looper][:builds_bucket]
     })
 end
 
@@ -161,7 +157,7 @@ template "/etc/init/test-looper.conf" do
       :stack_file => stack_file,
       :expected_dependencies_version => expected_dependencies_version,
       :git_branch => git_branch,
-      :ccache_size_gb => node[:test_looper][:ccache_size_gb],
+      :ccache_size_gb => node[:test_looper_worker][:ccache_size_gb],
       :config_file => config_file
   })
 end
