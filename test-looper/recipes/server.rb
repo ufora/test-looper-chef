@@ -139,7 +139,7 @@ worker_install_dir = node[:test_looper_worker][:install_dir]
 worker_config_file = "#{worker_install_dir}/#{node[:test_looper_worker][:config_file]}"
 
 template config_file do
-  source "test-looper-server.conf.erb"
+  source "server-conf.erb"
   owner service_account
   group service_account
   variables({

@@ -140,7 +140,7 @@ deploy_revision test_src_dir do
 end
 
 template config_file do
-  source "test-looper.conf.erb"
+  source "worker-conf.erb"
   owner service_account
   group service_account
   variables({
