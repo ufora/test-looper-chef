@@ -27,7 +27,14 @@ expected_dependencies_version = node[:test_looper][:expected_dependencies_versio
 log_file = "/var/log/test-looper.log"
 stack_file = "#{log_file}.stack"
 
-secrets = Chef::EncryptedDataBagItem.load('test-looper', 'server')
+require 'aws-sdk'
+s3 = AWS::S3.new
+bucket = node[:test_looper][:data_bag_bucket]
+data_bag_key = node[:test_looper][:data_bag_key]
+encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
+encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
+secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
+
 git_deploy_key = secrets['git_deploy_key']
 
 user service_account do
