@@ -13,7 +13,7 @@ home_dir = node[:test_looper][:home_dir]
 
 install_dir = node[:test_looper_server][:install_dir]
 ssh_dir = "#{install_dir}/.ssh"
-deploy_key = "#{ssh_dir}/#{node[:test_looper_server][:github_deploy_key]}"
+deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
 
 tasks_root_dir = "#{install_dir}/tasks"
 deploy_dir = "#{install_dir}/deploy-src"
