@@ -179,7 +179,7 @@ end
 
 
 web_app "test-looper-proxy" do
-  template "web_app.conf.erb"
+  template "server-apache-conf.erb"
   server_name node[:test_looper_server][:dnsname]
   cert_file public_cert_file
   cert_key private_key_file
