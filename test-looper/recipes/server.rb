@@ -162,7 +162,7 @@ template config_file do
 end
 
 template "/etc/init/test-looper-server.conf" do
-  source "test-looper-server-upstart-conf.erb"
+  source "server-init.erb"
   variables({
       :service_account => service_account,
       :service_dir => service_dir,

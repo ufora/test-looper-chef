@@ -155,7 +155,7 @@ template config_file do
 end
 
 template "/etc/init/test-looper.conf" do
-  source "test-looper-upstart-conf.erb"
+  source "worker-init.erb"
   variables({
       :service_account => service_account,
       :src_dir => src_dir,
