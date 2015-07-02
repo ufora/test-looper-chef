@@ -7,6 +7,7 @@
 # Creates user accounts, directories, ssh keys, and other
 # fairly static resources on the machine
 
+env = node[:test_looper][:environment] # prod, dev, etc.
 
 service_account = node[:test_looper][:service_account]
 home_dir = node[:test_looper][:home_dir]
@@ -30,7 +31,7 @@ stack_file = "#{log_file}.stack"
 require 'aws-sdk'
 s3 = AWS::S3.new
 bucket = node[:test_looper][:data_bag_bucket]
-data_bag_key = node[:test_looper][:data_bag_key]
+data_bag_key = node[:test_looper_server][:data_bag_key]
 encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
 encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
 secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
@@ -119,7 +120,7 @@ deploy_revision src_dir do
   ssh_wrapper git_ssh_wrapper
   user service_account
   group service_account
-  action :deploy
+  action :force_deploy
 
   symlink_before_migrate.clear
   create_dirs_before_symlink.clear
@@ -145,10 +146,10 @@ template config_file do
   variables({
     :server_port => node[:test_looper_server][:port],
     :server_http_port => http_port,
-    :github_app_id => node[:test_looper_server][:github_oauth_app_id],
-    :github_app_secret => secrets['test_looper_github_app_client_secret'],
+    :github_app_id => secrets[env]['github_oauth_app_client_id'],
+    :github_app_secret => secrets[env]['github_oauth_app_client_secret'],
     :github_access_token => secrets['github_api_token'],
-    :github_webhook_secret => secrets['test_looper_github_webhook_secret'],
+    :github_webhook_secret => secrets[env]['github_webhook_secret'],
     :github_test_looper_branch => git_branch,
     :ec2_security_group => ec2_security_group,
     :ec2_ami => ec2_looper_ami,

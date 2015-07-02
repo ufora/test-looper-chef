@@ -30,7 +30,7 @@ stack_file = "#{log_file}.stack"
 require 'aws-sdk'
 s3 = AWS::S3.new
 bucket = node[:test_looper][:data_bag_bucket]
-data_bag_key = node[:test_looper][:data_bag_key]
+data_bag_key = node[:test_looper_worker][:data_bag_key]
 encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
 encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
 secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
@@ -116,7 +116,7 @@ deploy_revision src_dir do
   ssh_wrapper git_ssh_wrapper
   user service_account
   group service_account
-  action :deploy
+  action :force_deploy
 
   symlink_before_migrate.clear
   create_dirs_before_symlink.clear
@@ -131,7 +131,7 @@ deploy_revision test_src_dir do
   ssh_wrapper git_ssh_wrapper
   user service_account
   group service_account
-  action :deploy
+  action :force_deploy
 
   symlink_before_migrate.clear
   create_dirs_before_symlink.clear
