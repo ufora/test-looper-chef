@@ -3,6 +3,7 @@
 # These MUST be set as custom JSON in OpsWorks
 default["test_looper"]["encrypted_data_bag_key"] = ""
 default["test_looper_server"]["dnsname"] = ""
+default["test_looper_server"]["vpc_subnets"] = {} # a map from AZ to subnet-id
 
 
 # Common Attributes

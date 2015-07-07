@@ -16,5 +16,14 @@ suites:
     data_bags_path: "~/chef-repo/data_bags"
     encrypted_data_bag_secret_key_path: "~/chef-repo/encrypted_data_bag_secret"
     run_list:
-      - recipe[test-looper::default]
+      - recipe[test-looper::server-externals]
+      - recipe[test-looper::server]
     attributes:
+      test_looper:
+        encrypted_data_bag_key: "asdf"
+        no_aws: true
+      test_looper_server:
+        dnsname: "foo.com"
+        vpc_subnets:
+          us-west-2a: "subnet-123"
+          us-west-2b: "subnet-abc"
