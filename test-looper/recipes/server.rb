@@ -8,6 +8,11 @@
 # fairly static resources on the machine
 
 env = node[:test_looper][:environment] # prod, dev, etc.
+dnsname = node[:test_looper_server][:dnsname]
+Chef::Application.fatal("Missing test_looper_server::dnsname attribute") if dnsname.empty?
+
+encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
+Chef::Application.fatal("Missing test_looper::encrypted_data_bag_key attribute") if encrypted_data_bag_key.empty?
 
 service_account = node[:test_looper][:service_account]
 home_dir = node[:test_looper][:home_dir]
@@ -33,7 +38,6 @@ s3 = AWS::S3.new
 bucket = node[:test_looper][:data_bag_bucket]
 data_bag_key = node[:test_looper_server][:data_bag_key]
 encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
-encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
 secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
 
 
