@@ -4,7 +4,10 @@
 default["test_looper"]["encrypted_data_bag_key"] = ""
 default["test_looper_server"]["dnsname"] = ""
 default["test_looper_server"]["vpc_subnets"] = {} # a map from AZ to subnet-id
-default["test_looper_server"]["ec2_worker_ami"] = "ami-5b0d346b"
+default["test_looper_server"]["worker_ami"] = ""
+default["test_looper_server"]["worker_security_group"] = ""
+default["test_looper"]["test_results_bucket"] = ""
+default["test_looper"]["builds_bucket"] = ""
 
 
 # Common Attributes
@@ -19,8 +22,6 @@ default["test_looper"]["data_bag_bucket"] = "ufora-opsworks-us-west-2"
 
 default["test_looper"]["environment"] = "prod"
 
-default["test_looper"]["ec2_test_result_bucket"] = "ufora-test-results-us-west-2"
-default["test_looper"]["ec2_builds_bucket"] = "ufora-builds-us-west-2"
 
 # TODO: remove when using only shrink-wrapped packages
 default["test_looper"]["expected_dependencies_version"] = "7c69b38771e10af88e992cb2313becfc44e74dab"
@@ -41,7 +42,6 @@ default["test_looper_server"]["ssl_cert_prefix"] = "ufora"
 default["test_looper_server"]["port"] = "7531"
 default["test_looper_server"]["http_port"] = "8888"
 
-default["test_looper_server"]["ec2_worker_security_group"] = "sg-06382863"
 default["test_looper_server"]["ec2_worker_role_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_ssh_key_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "30"

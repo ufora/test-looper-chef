@@ -160,7 +160,7 @@ template config_file do
     :worker_test_data_dir => test_data_dir,
     :worker_ccache_dir => ccache_dir,
     :worker_build_cache_dir => build_cache_dir,
-    :ec2_test_result_bucket => node[:test_looper][:test_result_bucket],
+    :ec2_test_result_bucket => node[:test_looper][:test_results_bucket],
     :ec2_builds_bucket => node[:test_looper][:builds_bucket]
     })
 end

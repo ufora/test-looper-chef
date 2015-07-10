@@ -138,12 +138,12 @@ end
 
 
 http_port = node[:test_looper_server][:http_port]
-ec2_security_group = node[:test_looper_server][:ec2_worker_security_group]
-ec2_looper_ami = node[:test_looper_server][:ec2_worker_ami]
+ec2_security_group = node[:test_looper_server][:worker_security_group]
+ec2_looper_ami = node[:test_looper_server][:worker_ami]
 ec2_worker_role_name = node[:test_looper_server][:ec2_worker_role_name]
 ec2_worker_ssh_key_name = node[:test_looper_server][:ec2_worker_ssh_key_name]
 ec2_worker_root_volume_size_gb = node[:test_looper_server][:ec2_worker_root_volume_size_gb]
-ec2_test_result_bucket = node[:test_looper][:test_result_bucket]
+ec2_test_result_bucket = node[:test_looper][:test_results_bucket]
 worker_install_dir = node[:test_looper_worker][:install_dir]
 worker_config_file = "#{worker_install_dir}/#{node[:test_looper_worker][:config_file]}"
 
