@@ -27,13 +27,17 @@ expected_dependencies_version = node[:test_looper][:expected_dependencies_versio
 log_file = "/var/log/test-looper.log"
 stack_file = "#{log_file}.stack"
 
+if node[:no_aws]
+  secrets = Chef::EncryptedDataBagItem.load('test-looper', 'worker')
+else
 require 'aws-sdk'
-s3 = AWS::S3.new
-bucket = node[:test_looper][:data_bag_bucket]
-data_bag_key = node[:test_looper_worker][:data_bag_key]
-encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
-encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
-secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
+  s3 = AWS::S3.new
+  bucket = node[:test_looper][:data_bag_bucket]
+  data_bag_key = node[:test_looper_worker][:data_bag_key]
+  encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
+  encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
+  secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
+end
 
 git_deploy_key = secrets['git_deploy_key']
 
@@ -70,6 +74,13 @@ end
 
 execute "restart docker.io" do
   action :run
+end
+
+docker_hub = secrets['docker_hub']
+file "#{home_dir}/.dockercfg" do
+  content %Q!{"#{docker_hub['hostname']}":{"auth":"#{docker_hub['auth']}","email":"#{docker_hub['email']}"}}!
+  owner service_account
+  group service_account
 end
 
 file "/proc/sys/kernel/core_pattern" do

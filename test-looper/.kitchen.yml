@@ -27,3 +27,12 @@ suites:
         vpc_subnets:
           us-west-2a: "subnet-123"
           us-west-2b: "subnet-abc"
+
+  - name: worker
+    run_list:
+      - recipe[test-looper::worker-externals]
+      - recipe[test-looper::worker]
+    attributes:
+      no_aws: true
+      test_looper:
+        encrypted_data_bag_key: "asdf"
