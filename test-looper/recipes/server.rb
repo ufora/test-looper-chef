@@ -33,7 +33,7 @@ log_file = "/var/log/test-looper-server.log"
 stack_file = "#{log_file}.stack"
 
 
-if node[:test_looper][:no_aws]
+if node[:no_aws]
   secrets = Chef::EncryptedDataBagItem.load('test-looper', 'server')
 else
   require 'aws-sdk'

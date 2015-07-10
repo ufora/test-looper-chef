@@ -4,6 +4,7 @@
 default["test_looper"]["encrypted_data_bag_key"] = ""
 default["test_looper_server"]["dnsname"] = ""
 default["test_looper_server"]["vpc_subnets"] = {} # a map from AZ to subnet-id
+default["test_looper_server"]["ec2_worker_ami"] = "ami-5b0d346b"
 
 
 # Common Attributes
@@ -41,10 +42,11 @@ default["test_looper_server"]["port"] = "7531"
 default["test_looper_server"]["http_port"] = "8888"
 
 default["test_looper_server"]["ec2_worker_security_group"] = "sg-06382863"
-default["test_looper_server"]["ec2_worker_ami"] = "ami-5b0d346b"
 default["test_looper_server"]["ec2_worker_role_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_ssh_key_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "30"
 
 # External cookbooks
 default['apt']['compile_time_update'] = true
+
+default['no_aws'] = false
