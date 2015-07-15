@@ -175,7 +175,6 @@ template "/etc/init/test-looper.conf" do
       :stack_file => stack_file,
       :expected_dependencies_version => expected_dependencies_version,
       :git_branch => git_branch,
-      :ccache_size_gb => node[:test_looper_worker][:ccache_size_gb],
       :config_file => config_file
   })
 end

@@ -19,12 +19,10 @@ pre-start script
     cd $PYTHONPATH
     git remote update
     git checkout -f origin/<%= @git_branch %>
-    ccache -M <%= @ccache_size_gb %>G
 end script
 
 
 script
     echo "Starting test-looper as `whoami`" >> $LOG_FILE
-    echo "ccache stats: `ccache -s`" >> $LOG_FILE
     python $PYTHONPATH/ufora/scripts/test-looper.py <%= @config_file %> >> $LOG_FILE 2>&1
 end script
