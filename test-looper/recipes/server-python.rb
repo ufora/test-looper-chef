@@ -1,6 +1,6 @@
 include_recipe 'python'
 include_recipe 'python::pip'
-pymodules = ['simplejson', 'redis', 'boto', 'pytz', 'cherrypy', 
+pymodules = ['awscli', 'simplejson', 'redis', 'boto', 'pytz', 'cherrypy',
              'python-dateutil', 'numpy', 'markdown', 'fabric', 'requests']
 
 pymodules.each do |pymodule|
