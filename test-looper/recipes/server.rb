@@ -155,6 +155,7 @@ template config_file do
   variables({
     :server_port => node[:test_looper_server][:port],
     :server_http_port => http_port,
+    :server_tasks_dir => tasks_root_dir,
     :github_app_id => secrets[env]['github_oauth_app_client_id'],
     :github_app_secret => secrets[env]['github_oauth_app_client_secret'],
     :github_access_token => secrets['github_api_token'],
@@ -182,7 +183,6 @@ template "/etc/init/test-looper-server.conf" do
       :log_file => log_file,
       :stack_file => stack_file,
       :git_branch => git_branch,
-      :tasks_root => tasks_root_dir,
       :deploy_dir => deploy_dir,
       :dependencies_version => node[:test_looper][:expected_dependencies_version],
       :config_file => config_file
