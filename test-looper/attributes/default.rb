@@ -49,6 +49,9 @@ default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "30"
 default["test_looper_server"]["baseline_branch"] = "origin/master"
 
 # External cookbooks
-default['apt']['compile_time_update'] = true
-
-default['no_aws'] = false
+default["apt"]["compile_time_update"] = true
+default["no_aws"] = false
+default["ntp"]["servers"] = ["0.us.pool.ntp.org",
+                             "1.us.pool.ntp.org",
+                             "2.us.pool.ntp.org",
+                             "3.us.pool.ntp.org"]

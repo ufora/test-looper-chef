@@ -9,3 +9,4 @@
 include_recipe 'apt'
 include_recipe 'test-looper::worker-apt'
 include_recipe 'test-looper::worker-python'
+include_recipe 'ntp'
