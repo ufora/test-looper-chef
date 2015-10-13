@@ -44,7 +44,7 @@ default["test_looper_server"]["http_port"] = "8888"
 
 default["test_looper_server"]["ec2_worker_role_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_ssh_key_name"] = "test-looper"
-default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "30"
+default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "8"
 
 default["test_looper_server"]["baseline_branch"] = "origin/master"
 
