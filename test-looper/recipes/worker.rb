@@ -107,6 +107,11 @@ end
     group service_account
   end
 end
+logrotate_app "test-looper" do
+  path [log_file, stack_file]
+  frequency "daily"
+  rotate 7
+end
 
 # Create the git ssh wrapper that uses our deployment key
 template git_ssh_wrapper do

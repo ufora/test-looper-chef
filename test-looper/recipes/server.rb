@@ -119,6 +119,11 @@ end
     group service_account
   end
 end
+logrotate_app "test-looper-server" do
+  path [log_file, stack_file]
+  frequency "daily"
+  rotate 7
+end
 
 # Clone the repo into the installation directory
 git_branch = node[:test_looper][:git_branch]

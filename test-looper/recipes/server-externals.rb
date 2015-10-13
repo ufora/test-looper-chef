@@ -16,3 +16,4 @@ include_recipe 'apache2::mod_proxy_http'
 include_recipe 'test-looper::server-apt'
 include_recipe 'test-looper::server-python'
 
+include_recipe 'logrotate'
