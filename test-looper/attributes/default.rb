@@ -48,6 +48,10 @@ default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "30"
 
 default["test_looper_server"]["baseline_branch"] = "origin/master"
 
+# Docker configuration
+default["test_looper"]["docker"]["graph_dir"] = "/mnt/docker/graph"
+default["test_looper"]["docker"]["tmp_dir"] = "/mnt/docker/tmp"
+
 # External cookbooks
 default["apt"]["compile_time_update"] = true
 default["no_aws"] = false

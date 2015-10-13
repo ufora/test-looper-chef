@@ -48,6 +48,8 @@ user service_account do
   action :create
 end
 
+include_recipe "test-looper::docker"
+
 directories = [home_dir, install_dir, src_dir, ssh_dir,
                test_src_dir, ccache_dir, build_cache_dir, core_dump_dir, test_data_dir]
 
@@ -61,20 +63,6 @@ directories.each do |path|
 end
 
 
-
-group "docker" do
-  action :create
-end
-
-group "docker" do
-  action :modify
-  append true
-  members service_account
-end
-
-execute "restart docker.io" do
-  action :run
-end
 
 docker_hub = secrets['docker_hub']
 file "#{home_dir}/.dockercfg" do
