@@ -30,6 +30,15 @@ group "docker" do
   members service_account
 end
 
+ruby_block 'disable docker auto start' do
+    block do
+        fe = Chef::Util::FileEdit.new('/etc/init/docker.io.conf')
+        fe.search_file_delete_line(/^start on/)
+        fe.write_file
+    end
+    action :run
+end
+
 execute "restart docker.io" do
   action :run
 end
