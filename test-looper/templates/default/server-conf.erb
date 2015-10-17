@@ -1,8 +1,7 @@
 {
   "server": {
     "port": <%= @server_port %>,
-    "http_port": <%= @server_http_port %>,
-    "tasks_dir": "<%= @server_tasks_dir %>"
+    "http_port": <%= @server_http_port %>
     },
 
   "github": {
@@ -11,7 +10,8 @@
     "access_token": "<%= @github_access_token %>",
     "webhook_secret": "<%= @github_webhook_secret %>",
     "test_looper_branch": "<%= @github_test_looper_branch %>",
-    "baseline_branch": "<%= @github_baseline_branch %>"
+    "baseline_branch": "<%= @github_baseline_branch %>",
+    "baseline_depth": <%= @github_baseline_depth %>
     },
 
   "ec2": {

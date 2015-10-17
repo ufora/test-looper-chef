@@ -47,6 +47,7 @@ default["test_looper_server"]["ec2_worker_ssh_key_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "8"
 
 default["test_looper_server"]["baseline_branch"] = "origin/master"
+default["test_looper_server"]["baseline_depth"] = "20"
 
 # Docker configuration
 default["test_looper"]["docker"]["graph_dir"] = "/mnt/docker/graph"

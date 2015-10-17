@@ -167,6 +167,7 @@ template config_file do
     :github_webhook_secret => secrets[env]['github_webhook_secret'],
     :github_test_looper_branch => git_branch,
     :github_baseline_branch => node[:test_looper_server][:baseline_branch],
+    :github_baseline_depth => node[:test_looper_server][:baseline_depth],
     :ec2_security_group => ec2_security_group,
     :ec2_ami => ec2_looper_ami,
     :ec2_worker_role_name => ec2_worker_role_name,
