@@ -19,7 +19,7 @@ home_dir = node[:test_looper][:home_dir]
 
 install_dir = node[:test_looper_server][:install_dir]
 ssh_dir = "#{install_dir}/.ssh"
-deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
+deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_looper]}"
 
 tasks_root_dir = "#{install_dir}/tasks"
 deploy_dir = "#{install_dir}/deploy-src"
@@ -27,7 +27,7 @@ deploy_dir = "#{install_dir}/deploy-src"
 config_file = "#{install_dir}/test-looper-server.conf"
 src_dir = "#{install_dir}/src"
 service_dir = "#{src_dir}/current"
-git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
+git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_looper_repo]}"
 
 log_file = "/var/log/test-looper-server.log"
 stack_file = "#{log_file}.stack"
@@ -64,7 +64,7 @@ end
 
 # Create the git ssh key (deployment key)
 file deploy_key do
-  content secrets['git_deploy_key']
+  content secrets['test_looper_repo_deploy_key']
   owner service_account
   group service_account
   mode '0700'
@@ -128,7 +128,7 @@ end
 # Clone the repo into the installation directory
 git_branch = node[:test_looper][:git_branch]
 deploy_revision src_dir do
-  repo node[:test_looper][:git_repo]
+  repo node[:test_looper][:looper_repo]
   revision git_branch
   ssh_wrapper git_ssh_wrapper
   user service_account

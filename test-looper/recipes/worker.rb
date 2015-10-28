@@ -11,8 +11,10 @@ config_file = "#{install_dir}/#{node[:test_looper_worker][:config_file]}"
 
 src_dir = "#{install_dir}/src"
 ssh_dir = "#{install_dir}/.ssh"
-deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key]}"
-git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper]}"
+deploy_key_target = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_target]}"
+deploy_key_looper = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_looper]}"
+git_ssh_wrapper_target_repo = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_target_repo]}"
+git_ssh_wrapper_looper_repo = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_looper_repo]}"
 
 home_dir = "/home/#{service_account}"
 test_src_dir = "#{home_dir}/src"
@@ -39,7 +41,8 @@ require 'aws-sdk'
   secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
 end
 
-git_deploy_key = secrets['git_deploy_key']
+git_deploy_key_target = secrets['git_deploy_key']
+git_deploy_key_looper = secrets['test_looper_repo_deploy_key']
 
 user service_account do
   supports :manage_home => true
@@ -80,9 +83,16 @@ file "/proc/sys/kernel/core_pattern" do
 end
 
 
-# Create the git ssh key (deployment key)
-file deploy_key do
-  content git_deploy_key
+# Create the git ssh key (deployment key) for the target repo
+file deploy_key_target do
+  content git_deploy_key_target
+  owner service_account
+  group service_account
+  mode '0700'
+end
+# Create the git ssh key (deployment key) for the looper repo
+file deploy_key_looper do
+  content git_deploy_key_looper
   owner service_account
   group service_account
   mode '0700'
@@ -101,23 +111,32 @@ logrotate_app "test-looper" do
   rotate 7
 end
 
-# Create the git ssh wrapper that uses our deployment key
-template git_ssh_wrapper do
+# Create the git ssh wrappers that uses our deployment keys
+template git_ssh_wrapper_looper_repo do
   source 'git-ssh-wrapper.erb'
   owner service_account
   group service_account
   mode '0700'
   variables({
-      :deploy_key => deploy_key
+      :deploy_key => deploy_key_looper
+  })
+end
+template git_ssh_wrapper_target_repo do
+  source 'git-ssh-wrapper.erb'
+  owner service_account
+  group service_account
+  mode '0700'
+  variables({
+      :deploy_key => deploy_key_target
   })
 end
 
 # Clone the repo into the installation directory
 # this is for the test-looper branch!
 deploy_revision src_dir do
-  repo node[:test_looper][:git_repo]
+  repo node[:test_looper][:looper_repo]
   revision git_branch
-  ssh_wrapper git_ssh_wrapper
+  ssh_wrapper git_ssh_wrapper_looper_repo
   user service_account
   group service_account
   action :force_deploy
@@ -130,9 +149,9 @@ end
 
 # clone the repo for the builder account
 deploy_revision test_src_dir do
-  repo node[:test_looper][:git_repo]
+  repo node[:test_looper][:target_repo]
   revision "master"
-  ssh_wrapper git_ssh_wrapper
+  ssh_wrapper git_ssh_wrapper_target_repo
   user service_account
   group service_account
   action :force_deploy
@@ -163,7 +182,7 @@ template "/etc/init/test-looper.conf" do
   variables({
       :service_account => service_account,
       :src_dir => src_dir,
-      :git_ssh_wrapper => git_ssh_wrapper,
+      :git_ssh_wrapper => git_ssh_wrapper_looper_repo,
       :log_file => log_file,
       :stack_file => stack_file,
       :expected_dependencies_version => expected_dependencies_version,
