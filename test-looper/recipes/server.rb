@@ -19,7 +19,8 @@ home_dir = node[:test_looper][:home_dir]
 
 install_dir = node[:test_looper_server][:install_dir]
 ssh_dir = "#{install_dir}/.ssh"
-deploy_key = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_looper]}"
+deploy_key_looper = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_looper]}"
+deploy_key_target = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_target]}"
 
 tasks_root_dir = "#{install_dir}/tasks"
 deploy_dir = "#{install_dir}/deploy-src"
@@ -27,7 +28,10 @@ deploy_dir = "#{install_dir}/deploy-src"
 config_file = "#{install_dir}/test-looper-server.conf"
 src_dir = "#{install_dir}/src"
 service_dir = "#{src_dir}/current"
-git_ssh_wrapper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_looper_repo]}"
+
+target_repo_dir = "#{install_dir}/target_repo"
+git_ssh_wrapper_looper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_looper_repo]}"
+git_ssh_wrapper_target = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_target_repo]}"
 
 log_file = "/var/log/test-looper-server.log"
 stack_file = "#{log_file}.stack"
@@ -62,9 +66,15 @@ end
   end
 end
 
-# Create the git ssh key (deployment key)
-file deploy_key do
+# Create the git ssh keys (deployment keys)
+file deploy_key_looper do
   content secrets['test_looper_repo_deploy_key']
+  owner service_account
+  group service_account
+  mode '0700'
+end
+file deploy_key_target do
+  content secrets['git_deploy_key']
   owner service_account
   group service_account
   mode '0700'
@@ -101,14 +111,23 @@ file cert_chain_file do
   mode '0700'
 end
 
-# Create the git ssh wrapper that uses our deployment key
-template git_ssh_wrapper do
+# Create the git ssh wrappers that uses our deployment keys
+template git_ssh_wrapper_looper do
   source 'git-ssh-wrapper.erb'
   owner service_account
   group service_account
   mode '0700'
   variables({
-      :deploy_key => deploy_key
+      :deploy_key => deploy_key_looper
+  })
+end
+template git_ssh_wrapper_target do
+  source 'git-ssh-wrapper.erb'
+  owner service_account
+  group service_account
+  mode '0700'
+  variables({
+      :deploy_key => deploy_key_target
   })
 end
 
@@ -130,7 +149,20 @@ git_branch = node[:test_looper][:git_branch]
 deploy_revision src_dir do
   repo node[:test_looper][:looper_repo]
   revision git_branch
-  ssh_wrapper git_ssh_wrapper
+  ssh_wrapper git_ssh_wrapper_looper
+  user service_account
+  group service_account
+  action :force_deploy
+
+  symlink_before_migrate.clear
+  create_dirs_before_symlink.clear
+  purge_before_symlink.clear
+  symlinks.clear
+end
+deploy_revision target_repo_dir do
+  repo node[:test_looper][:target_repo]
+  revision "master"
+  ssh_wrapper git_ssh_wrapper_target
   user service_account
   group service_account
   action :force_deploy
@@ -186,7 +218,9 @@ template "/etc/init/test-looper-server.conf" do
   variables({
       :service_account => service_account,
       :service_dir => service_dir,
-      :git_ssh_wrapper => git_ssh_wrapper,
+      :git_ssh_wrapper_looper => git_ssh_wrapper_looper,
+      :git_ssh_wrapper_target => git_ssh_wrapper_target,
+      :target_repo_path => "#{target_repo_dir}/current",
       :log_file => log_file,
       :stack_file => stack_file,
       :git_branch => git_branch,

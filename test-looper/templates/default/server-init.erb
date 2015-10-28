@@ -11,7 +11,9 @@ kill signal SIGKILL
 
 env HOME=/home/<%= @service_account %>
 env PYTHONPATH=<%= @service_dir %>
-env GIT_SSH=<%= @git_ssh_wrapper %>
+env TARGET_REPO=<%= @target_repo_path %>
+env GIT_SSH=<%= @git_ssh_wrapper_looper %>
+env GIT_TARGET_SSH=<%= @git_ssh_wrapper_target %>
 env LOG_FILE=<%= @log_file %>
 env STACK_FILE=<%= @stack_file %>
 
@@ -29,6 +31,7 @@ pre-start script
 end script
 
 script
-    cd $PYTHONPATH
-    python ufora/scripts/test-looper-server.py --config <%= @config_file %> >> $LOG_FILE 2>&1
+    cd $TARGET_REPO
+    export GIT_SSH=$GIT_TARGET_SSH
+    python $PYTHONPATH/ufora/scripts/test-looper-server.py --config <%= @config_file %> >> $LOG_FILE 2>&1
 end script
