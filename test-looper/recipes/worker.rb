@@ -182,6 +182,7 @@ template "/etc/init/test-looper.conf" do
       :service_account => service_account,
       :src_dir => src_dir,
       :git_ssh_wrapper => git_ssh_wrapper_looper_repo,
+      :git_target_ssh_wrapper => git_ssh_wrapper_target_repo,
       :log_file => log_file,
       :stack_file => stack_file,
       :git_branch => git_branch,

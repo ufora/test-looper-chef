@@ -10,6 +10,7 @@ respawn limit 20 5
 env HOME=/home/<%= @service_account %>
 env PYTHONPATH=<%= @src_dir %>/current
 env GIT_SSH=<%= @git_ssh_wrapper %>
+env GIT_TARGET_SSH=<%= @git_target_ssh_wrapper %>
 env LOG_FILE=<%= @log_file %>
 env STACK_FILE=<%= @stack_file %>
 
@@ -23,5 +24,7 @@ end script
 
 script
     echo "Starting test-looper as `whoami`" >> $LOG_FILE
+    cd $TARGET_REPO_PATH
+    export GIT_SSH=$GIT_TARGET_SSH
     python $PYTHONPATH/ufora/scripts/test-looper.py <%= @config_file %> >> $LOG_FILE 2>&1
 end script
