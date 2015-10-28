@@ -26,9 +26,6 @@ default["test_looper"]["data_bag_bucket"] = "ufora-opsworks-us-west-2"
 default["test_looper"]["environment"] = "prod"
 
 
-# TODO: remove when using only shrink-wrapped packages
-default["test_looper"]["expected_dependencies_version"] = "7c69b38771e10af88e992cb2313becfc44e74dab"
-
 # Worker Attributes
 default["test_looper_worker"]["data_bag_key"] = "test-looper/worker.json"
 default["test_looper_worker"]["install_dir"] = "/opt/test-looper"

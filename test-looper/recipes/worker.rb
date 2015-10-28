@@ -24,7 +24,6 @@ core_dump_dir = "#{home_dir}/core_dumps"
 test_data_dir = "#{home_dir}/test_data"
 
 git_branch = node[:test_looper][:git_branch]
-expected_dependencies_version = node[:test_looper][:expected_dependencies_version]
 
 log_file = "/var/log/test-looper.log"
 stack_file = "#{log_file}.stack"
@@ -185,7 +184,6 @@ template "/etc/init/test-looper.conf" do
       :git_ssh_wrapper => git_ssh_wrapper_looper_repo,
       :log_file => log_file,
       :stack_file => stack_file,
-      :expected_dependencies_version => expected_dependencies_version,
       :git_branch => git_branch,
       :config_file => config_file
   })
