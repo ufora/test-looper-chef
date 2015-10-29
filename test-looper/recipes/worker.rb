@@ -20,7 +20,7 @@ home_dir = "/home/#{service_account}"
 test_src_dir = "#{home_dir}/src"
 ccache_dir = "#{home_dir}/ccache"
 build_cache_dir = "#{home_dir}/build_cache"
-core_dump_dir = "#{home_dir}/core_dumps"
+core_dump_dir = node[:test_looper_worker][:core_dump_dir]
 test_data_dir = "#{home_dir}/test_data"
 
 git_branch = node[:test_looper][:git_branch]

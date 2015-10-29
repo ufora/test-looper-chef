@@ -31,6 +31,7 @@ default["test_looper_worker"]["data_bag_key"] = "test-looper/worker.json"
 default["test_looper_worker"]["install_dir"] = "/opt/test-looper"
 default["test_looper_worker"]["config_file"] = "test-looper.conf.json"
 default["test_looper_worker"]["ccache_size_gb"] = "30"
+default["test_looper_worker"]["core_dump_dir"] = "/var/core"
 
 
 # Server Attributes
