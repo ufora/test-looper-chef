@@ -1,4 +1,4 @@
-# assumes that the docker.io apt package has been installed
+# assumes that the docker apt package has been installed
 # see worker-apt.rb for an example
 
 service_account = node[:test_looper][:service_account]
@@ -12,7 +12,7 @@ tmp_dir = node[:test_looper][:docker][:tmp_dir]
     end
 end
 
-template "/etc/default/docker.io" do
+template "/etc/default/docker" do
     source "docker-conf.erb"
     variables({
         :docker_graph_dir => graph_dir,
@@ -39,6 +39,6 @@ ruby_block 'disable docker auto start' do
     action :run
 end
 
-execute "restart docker.io" do
+execute "restart docker" do
   action :run
 end
