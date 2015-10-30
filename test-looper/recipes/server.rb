@@ -209,7 +209,8 @@ template config_file do
     :ec2_builds_bucket => ec2_builds_bucket,
     :ec2_vpc_subnets => node[:test_looper_server][:vpc_subnets],
     :worker_install_dir => node[:test_looper_worker][:install_dir],
-    :worker_config_file => worker_config_file
+    :worker_config_file => worker_config_file,
+    :worker_core_dump_dir => node[:test_looper_worker][:core_dump_dir]
     })
 end
 
