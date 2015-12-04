@@ -7,6 +7,8 @@
 <VirtualHost *:443>
     SSLEngine On
     SSLProxyEngine On
+    SSLProtocol all -SSLv3
+    SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
 
     SSLCertificateFile       <%= @params[:cert_file] %>
     SSLCertificateKeyFile    <%= @params[:cert_key] %>

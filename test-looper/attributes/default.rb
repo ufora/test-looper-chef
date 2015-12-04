@@ -39,7 +39,7 @@ default["test_looper_server"]["data_bag_key"] = "test-looper/server.json"
 default["test_looper_server"]["install_dir"] = "/opt/test-looper-server"
 
 default["test_looper_server"]["ssl_dir"] = "/etc/apache2/ssl"
-default["test_looper_server"]["ssl_cert_prefix"] = "ufora"
+default["test_looper_server"]["ssl_cert_prefix"] = "test-looper"
 default["test_looper_server"]["port"] = "7531"
 default["test_looper_server"]["http_port"] = "8888"
 
