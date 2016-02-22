@@ -50,7 +50,9 @@ user service_account do
   action :create
 end
 
+include_recipe 'apt'
 include_recipe "test-looper::docker"
+include_recipe "test-looper::cuda"
 
 directories = [home_dir, install_dir, src_dir, ssh_dir,
                test_src_dir, ccache_dir, build_cache_dir, core_dump_dir, test_data_dir]
