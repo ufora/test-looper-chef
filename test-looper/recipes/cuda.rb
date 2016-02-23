@@ -1,3 +1,31 @@
+# Update kernel
+kernel_release = node['kernel']['release']
+apt_package "linux-headers-#{kernel_release}" do
+    action :install
+    options '--force-yes'
+end
+apt_package "linux-image-#{kernel_release}" do
+    action :install
+    options '--force-yes'
+end
+apt_package "linux-image-extra-#{kernel_release}" do
+    action :install
+    options '--force-yes'
+    notifies :reboot_now, 'reboot[now]', :delayed
+end
+
+reboot 'now' do
+    action :nothing
+    reason 'Rebooting after kernel upgrade'
+    delay_mins 0
+    notifies :run, 'execute[nvidia-smi]', :immediately
+end
+
+execute 'nvidia-smi' do
+    command 'nvidia-smi'
+    action :nothing
+end
+
 # Install CUDA
 remote_file '/tmp/cuda-repo-ubuntu1404_7.5-18_amd64.deb' do
   source 'http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb'
