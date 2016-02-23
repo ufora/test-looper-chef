@@ -11,20 +11,20 @@ end
 apt_package "linux-image-extra-#{kernel_release}" do
     action :install
     options '--force-yes'
-    notifies :reboot_now, 'reboot[now]', :delayed
+    #notifies :reboot_now, 'reboot[now]', :delayed
 end
 
-reboot 'now' do
-    action :nothing
-    reason 'Rebooting after kernel upgrade'
-    delay_mins 0
-    notifies :run, 'execute[nvidia-smi]', :immediately
-end
+#reboot 'now' do
+    #action :nothing
+    #reason 'Rebooting after kernel upgrade'
+    #delay_mins 0
+    #notifies :run, 'execute[nvidia-smi]', :immediately
+#end
 
-execute 'nvidia-smi' do
-    command 'nvidia-smi'
-    action :nothing
-end
+#execute 'nvidia-smi' do
+    #command 'nvidia-smi'
+    #action :nothing
+#end
 
 # Install CUDA
 remote_file '/tmp/cuda-repo-ubuntu1404_7.5-18_amd64.deb' do
@@ -69,7 +69,7 @@ end
 bash 'download nvidia-docker' do
     cwd '/tmp'
     code <<-EOH
-    wget https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.0-beta/nvidia-docker_1.0.0.beta-1_amd64.deb
+    wget -nv https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.0-beta/nvidia-docker_1.0.0.beta-1_amd64.deb
     EOH
 end
 unless node[:no_aws]
