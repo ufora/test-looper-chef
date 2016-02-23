@@ -66,11 +66,9 @@ end
   #source 'https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.0-beta/nvidia-docker_1.0.0.beta-1_amd64.deb'
 #end
 
-bash 'download nvidia-docker' do
+execute 'download-nvidia-docker' do
     cwd '/tmp'
-    code <<-EOH
-    wget -nv https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.0-beta/nvidia-docker_1.0.0.beta-1_amd64.deb
-    EOH
+    command '/usr/bin/wget -nv https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.0-beta/nvidia-docker_1.0.0.beta-1_amd64.deb'
 end
 unless node[:no_aws]
     dpkg_package 'nvidia-docker_1.0.0.beta-1_amd64' do
