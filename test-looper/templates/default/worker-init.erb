@@ -26,5 +26,5 @@ script
     echo "Starting test-looper as `whoami`" >> $LOG_FILE
     cd $TARGET_REPO_PATH
     export GIT_SSH=$GIT_TARGET_SSH
-    python $PYTHONPATH/ufora/scripts/test-looper.py <%= @config_file %> >> $LOG_FILE 2>&1
+    python $PYTHONPATH/test_looper/worker/test-looper.py <%= @config_file %> >> $LOG_FILE 2>&1
 end script
