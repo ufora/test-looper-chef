@@ -145,10 +145,10 @@ logrotate_app "test-looper-server" do
 end
 
 # Clone the repo into the installation directory
-git_branch = node[:test_looper][:git_branch]
+looper_branch = node[:test_looper][:looper_branch]
 deploy_revision src_dir do
   repo node[:test_looper][:looper_repo]
-  revision git_branch
+  revision looper_branch
   ssh_wrapper git_ssh_wrapper_looper
   user service_account
   group service_account
@@ -197,7 +197,7 @@ template config_file do
     :github_app_secret => secrets[env]['github_oauth_app_client_secret'],
     :github_access_token => secrets['github_api_token'],
     :github_webhook_secret => secrets[env]['github_webhook_secret'],
-    :github_test_looper_branch => git_branch,
+    :github_test_looper_branch => looper_branch,
     :github_baseline_branch => node[:test_looper_server][:baseline_branch],
     :github_baseline_depth => node[:test_looper_server][:baseline_depth],
     :ec2_security_group => ec2_security_group,
@@ -224,7 +224,7 @@ template "/etc/init/test-looper-server.conf" do
       :target_repo_path => "#{target_repo_dir}/current",
       :log_file => log_file,
       :stack_file => stack_file,
-      :git_branch => git_branch,
+      :looper_branch => looper_branch,
       :deploy_dir => deploy_dir,
       :dependencies_version => node[:test_looper][:expected_dependencies_version],
       :config_file => config_file

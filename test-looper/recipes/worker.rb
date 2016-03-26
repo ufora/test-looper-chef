@@ -23,7 +23,7 @@ build_cache_dir = "#{home_dir}/build_cache"
 core_dump_dir = node[:test_looper_worker][:core_dump_dir]
 test_data_dir = "#{home_dir}/test_data"
 
-git_branch = node[:test_looper][:git_branch]
+looper_branch = node[:test_looper][:looper_branch]
 
 log_file = "/var/log/test-looper.log"
 stack_file = "#{log_file}.stack"
@@ -136,7 +136,7 @@ end
 # this is for the test-looper branch!
 deploy_revision src_dir do
   repo node[:test_looper][:looper_repo]
-  revision git_branch
+  revision looper_branch
   ssh_wrapper git_ssh_wrapper_looper_repo
   user service_account
   group service_account
@@ -187,7 +187,7 @@ template "/etc/init/test-looper.conf" do
       :git_target_ssh_wrapper => git_ssh_wrapper_target_repo,
       :log_file => log_file,
       :stack_file => stack_file,
-      :git_branch => git_branch,
+      :looper_branch => looper_branch,
       :config_file => config_file
   })
 end

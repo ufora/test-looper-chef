@@ -18,8 +18,8 @@ default["test_looper"]["github_deploy_key_looper"] = "id_deploy_looper"
 default["test_looper"]["git_ssh_wrapper_target_repo"] = "wrap-ssh4git-target.sh"
 default["test_looper"]["git_ssh_wrapper_looper_repo"] = "wrap-ssh4git-test-looper.sh"
 default["test_looper"]["target_repo"] = "git@github.com:ufora/ufora.git"
-default["test_looper"]["looper_repo"] = "git@github.com:ufora/main.git"
-default["test_looper"]["git_branch"] = "test-looper-standalone"
+default["test_looper"]["looper_repo"] = "git@github.com:ufora/test-looper.git"
+default["test_looper"]["looper_branch"] = "master"
 
 default["test_looper"]["data_bag_bucket"] = "ufora-opsworks-us-west-2"
 

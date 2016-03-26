@@ -27,7 +27,7 @@ env TZ=US/Eastern
 pre-start script
     cd $PYTHONPATH
     git remote update
-    git checkout -f origin/<%= @git_branch %>
+    git checkout -f origin/<%= @looper_branch %>
 end script
 
 script
