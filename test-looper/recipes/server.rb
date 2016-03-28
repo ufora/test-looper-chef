@@ -233,7 +233,8 @@ template "/etc/init/test-looper-server.conf" do
       :looper_branch => looper_branch,
       :deploy_dir => deploy_dir,
       :dependencies_version => node_looper[:expected_dependencies_version],
-      :config_file => config_file
+      :config_file => config_file,
+      :command_options => node_server[:command_options]
   })
 end
 

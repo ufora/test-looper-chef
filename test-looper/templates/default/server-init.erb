@@ -33,5 +33,5 @@ end script
 script
     cd $TARGET_REPO
     export GIT_SSH=$GIT_TARGET_SSH
-    python $PYTHONPATH/test_looper/server/test-looper-server.py --config <%= @config_file %> >> $LOG_FILE 2>&1
+    python $PYTHONPATH/test_looper/server/test-looper-server.py --config <%= @config_file %> <%= @command_options %> >> $LOG_FILE 2>&1
 end script

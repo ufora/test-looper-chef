@@ -51,6 +51,8 @@ default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "8"
 default["test_looper_server"]["baseline_branch"] = "origin/master"
 default["test_looper_server"]["baseline_depth"] = "20"
 
+default["test_looper_server"]["command_options"] = ""
+
 # Docker configuration
 default["test_looper"]["docker"]["graph_dir"] = "/mnt/docker/graph"
 default["test_looper"]["docker"]["tmp_dir"] = "/mnt/docker/tmp"
