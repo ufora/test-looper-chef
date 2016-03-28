@@ -7,19 +7,22 @@
 # Creates user accounts, directories, ssh keys, and other
 # fairly static resources on the machine
 
-dnsname = node[:test_looper_server][:dnsname]
+node_looper = node[:test_looper]
+node_server = node[:test_looper_server]
+
+dnsname = node_server[:dnsname]
 Chef::Application.fatal("Missing test_looper_server::dnsname attribute") if dnsname.empty?
 
-encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
+encrypted_data_bag_key = node_looper[:encrypted_data_bag_key].gsub('\n', "\n").strip
 Chef::Application.fatal("Missing test_looper::encrypted_data_bag_key attribute") if encrypted_data_bag_key.empty?
 
-service_account = node[:test_looper][:service_account]
-home_dir = node[:test_looper][:home_dir]
+service_account = node_looper[:service_account]
+home_dir = node_looper[:home_dir]
 
-install_dir = node[:test_looper_server][:install_dir]
+install_dir = node_server[:install_dir]
 ssh_dir = "#{install_dir}/.ssh"
-deploy_key_looper = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_looper]}"
-deploy_key_target = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_target]}"
+deploy_key_looper = "#{ssh_dir}/#{node_looper[:github_deploy_key_looper]}"
+deploy_key_target = "#{ssh_dir}/#{node_looper[:github_deploy_key_target]}"
 
 tasks_root_dir = "#{install_dir}/tasks"
 deploy_dir = "#{install_dir}/deploy-src"
@@ -29,8 +32,8 @@ src_dir = "#{install_dir}/src"
 service_dir = "#{src_dir}/current"
 
 target_repo_dir = "#{install_dir}/target_repo"
-git_ssh_wrapper_looper = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_looper_repo]}"
-git_ssh_wrapper_target = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_target_repo]}"
+git_ssh_wrapper_looper = "#{ssh_dir}/#{node_looper[:git_ssh_wrapper_looper_repo]}"
+git_ssh_wrapper_target = "#{ssh_dir}/#{node_looper[:git_ssh_wrapper_target_repo]}"
 
 log_file = "/var/log/test-looper-server.log"
 stack_file = "#{log_file}.stack"
@@ -41,9 +44,9 @@ if node[:no_aws]
 else
   require 'aws-sdk'
   s3 = AWS::S3.new
-  env = node[:test_looper][:environment] # prod, dev, etc.
-  bucket = node[:test_looper][:data_bag_bucket]
-  data_bag_key = node[:test_looper_server][:data_bag_key]
+  env = node_looper[:environment] # prod, dev, etc.
+  bucket = node_looper[:data_bag_bucket]
+  data_bag_key = node_server[:data_bag_key]
   encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects["#{env}/#{data_bag_key}"].read)
   secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
 end
@@ -82,8 +85,8 @@ end
 
 
 # Copy SSL Certificate
-ssl_dir = node[:test_looper_server][:ssl_dir]
-cert_name = node[:test_looper_server][:ssl_cert_prefix]
+ssl_dir = node_server[:ssl_dir]
+cert_name = node_server[:ssl_cert_prefix]
 public_cert_file = "#{ssl_dir}/#{cert_name}.crt"
 private_key_file = "#{ssl_dir}/#{cert_name}.key"
 cert_chain_file = "#{ssl_dir}/#{cert_name}.ca"
@@ -145,9 +148,9 @@ logrotate_app "test-looper-server" do
 end
 
 # Clone the repo into the installation directory
-looper_branch = node[:test_looper][:looper_branch]
+looper_branch = node_looper[:looper_branch]
 deploy_revision src_dir do
-  repo node[:test_looper][:looper_repo]
+  repo node_looper[:looper_repo]
   revision looper_branch
   ssh_wrapper git_ssh_wrapper_looper
   user service_account
@@ -159,8 +162,9 @@ deploy_revision src_dir do
   purge_before_symlink.clear
   symlinks.clear
 end
+
 deploy_revision target_repo_dir do
-  repo node[:test_looper][:target_repo]
+  repo "git@github.com:#{node_looper[:target_repo_owner]}/#{node_looper[:target_repo]}.git"
   revision "master"
   ssh_wrapper git_ssh_wrapper_target
   user service_account
@@ -174,14 +178,14 @@ deploy_revision target_repo_dir do
 end
 
 
-http_port = node[:test_looper_server][:http_port]
-ec2_security_group = node[:test_looper_server][:worker_security_group]
-ec2_looper_ami = node[:test_looper_server][:worker_ami]
-ec2_worker_role_name = node[:test_looper_server][:ec2_worker_role_name]
-ec2_worker_ssh_key_name = node[:test_looper_server][:ec2_worker_ssh_key_name]
-ec2_worker_root_volume_size_gb = node[:test_looper_server][:ec2_worker_root_volume_size_gb]
-ec2_test_result_bucket = node[:test_looper][:test_results_bucket]
-ec2_builds_bucket = node[:test_looper][:builds_bucket]
+http_port = node_server[:http_port]
+ec2_security_group = node_server[:worker_security_group]
+ec2_looper_ami = node_server[:worker_ami]
+ec2_worker_role_name = node_server[:ec2_worker_role_name]
+ec2_worker_ssh_key_name = node_server[:ec2_worker_ssh_key_name]
+ec2_worker_root_volume_size_gb = node_server[:ec2_worker_root_volume_size_gb]
+ec2_test_result_bucket = node_looper[:test_results_bucket]
+ec2_builds_bucket = node_looper[:builds_bucket]
 worker_install_dir = node[:test_looper_worker][:install_dir]
 worker_config_file = "#{worker_install_dir}/#{node[:test_looper_worker][:config_file]}"
 
@@ -190,7 +194,7 @@ template config_file do
   owner service_account
   group service_account
   variables({
-    :server_port => node[:test_looper_server][:port],
+    :server_port => node_server[:port],
     :server_http_port => http_port,
     :server_tasks_dir => tasks_root_dir,
     :github_app_id => secrets['github_oauth_app_client_id'],
@@ -198,8 +202,10 @@ template config_file do
     :github_access_token => secrets['github_api_token'],
     :github_webhook_secret => secrets['github_webhook_secret'],
     :github_test_looper_branch => looper_branch,
-    :github_baseline_branch => node[:test_looper_server][:baseline_branch],
-    :github_baseline_depth => node[:test_looper_server][:baseline_depth],
+    :github_baseline_branch => node_server[:baseline_branch],
+    :github_baseline_depth => node_server[:baseline_depth],
+    :github_target_repo => node_looper[:target_repo],
+    :github_target_repo_owner => node_looper[:target_repo_owner],
     :ec2_security_group => ec2_security_group,
     :ec2_ami => ec2_looper_ami,
     :ec2_worker_role_name => ec2_worker_role_name,
@@ -207,7 +213,7 @@ template config_file do
     :ec2_worker_root_volume_size_gb => ec2_worker_root_volume_size_gb,
     :ec2_test_result_bucket => ec2_test_result_bucket,
     :ec2_builds_bucket => ec2_builds_bucket,
-    :ec2_vpc_subnets => node[:test_looper_server][:vpc_subnets],
+    :ec2_vpc_subnets => node_server[:vpc_subnets],
     :worker_install_dir => node[:test_looper_worker][:install_dir],
     :worker_config_file => worker_config_file,
     :worker_core_dump_dir => node[:test_looper_worker][:core_dump_dir]
@@ -226,7 +232,7 @@ template "/etc/init/test-looper-server.conf" do
       :stack_file => stack_file,
       :looper_branch => looper_branch,
       :deploy_dir => deploy_dir,
-      :dependencies_version => node[:test_looper][:expected_dependencies_version],
+      :dependencies_version => node_looper[:expected_dependencies_version],
       :config_file => config_file
   })
 end
@@ -234,7 +240,7 @@ end
 
 web_app "test-looper-proxy" do
   template "server-apache-conf.erb"
-  server_name node[:test_looper_server][:dnsname]
+  server_name node_server[:dnsname]
   cert_file public_cert_file
   cert_key private_key_file
   cert_chain cert_chain_file

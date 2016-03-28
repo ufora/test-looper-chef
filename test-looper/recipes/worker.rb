@@ -4,26 +4,28 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
+node_looper = node[:test_looper]
+node_worker = node[:test_looper_worker]
 
-service_account = node[:test_looper][:service_account]
-install_dir = node[:test_looper_worker][:install_dir]
-config_file = "#{install_dir}/#{node[:test_looper_worker][:config_file]}"
+service_account = node_looper[:service_account]
+install_dir = node_worker[:install_dir]
+config_file = "#{install_dir}/#{node_worker[:config_file]}"
 
 src_dir = "#{install_dir}/src"
 ssh_dir = "#{install_dir}/.ssh"
-deploy_key_target = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_target]}"
-deploy_key_looper = "#{ssh_dir}/#{node[:test_looper][:github_deploy_key_looper]}"
-git_ssh_wrapper_target_repo = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_target_repo]}"
-git_ssh_wrapper_looper_repo = "#{ssh_dir}/#{node[:test_looper][:git_ssh_wrapper_looper_repo]}"
+deploy_key_target = "#{ssh_dir}/#{node_looper[:github_deploy_key_target]}"
+deploy_key_looper = "#{ssh_dir}/#{node_looper[:github_deploy_key_looper]}"
+git_ssh_wrapper_target = "#{ssh_dir}/#{node_looper[:git_ssh_wrapper_target_repo]}"
+git_ssh_wrapper_looper = "#{ssh_dir}/#{node_looper[:git_ssh_wrapper_looper_repo]}"
 
 home_dir = "/home/#{service_account}"
 test_src_dir = "#{home_dir}/src"
 ccache_dir = "#{home_dir}/ccache"
 build_cache_dir = "#{home_dir}/build_cache"
-core_dump_dir = node[:test_looper_worker][:core_dump_dir]
+core_dump_dir = node_worker[:core_dump_dir]
 test_data_dir = "#{home_dir}/test_data"
 
-looper_branch = node[:test_looper][:looper_branch]
+looper_branch = node_looper[:looper_branch]
 
 log_file = "/var/log/test-looper.log"
 stack_file = "#{log_file}.stack"
@@ -33,11 +35,11 @@ if node[:no_aws]
 else
 require 'aws-sdk'
   s3 = AWS::S3.new
-  env = node[:test_looper][:environment] # prod, dev, etc.
-  bucket = node[:test_looper][:data_bag_bucket]
-  data_bag_key = node[:test_looper_worker][:data_bag_key]
+  env = node_looper[:environment] # prod, dev, etc.
+  bucket = node_looper[:data_bag_bucket]
+  data_bag_key = node_worker[:data_bag_key]
   encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects["#{env}/#{data_bag_key}"].read)
-  encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
+  encrypted_data_bag_key = node_looper[:encrypted_data_bag_key].gsub('\n', "\n").strip
   secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
 end
 
@@ -114,7 +116,7 @@ logrotate_app "test-looper" do
 end
 
 # Create the git ssh wrappers that uses our deployment keys
-template git_ssh_wrapper_looper_repo do
+template git_ssh_wrapper_looper do
   source 'git-ssh-wrapper.erb'
   owner service_account
   group service_account
@@ -123,7 +125,7 @@ template git_ssh_wrapper_looper_repo do
       :deploy_key => deploy_key_looper
   })
 end
-template git_ssh_wrapper_target_repo do
+template git_ssh_wrapper_target do
   source 'git-ssh-wrapper.erb'
   owner service_account
   group service_account
@@ -136,9 +138,9 @@ end
 # Clone the repo into the installation directory
 # this is for the test-looper branch!
 deploy_revision src_dir do
-  repo node[:test_looper][:looper_repo]
+  repo node_looper[:looper_repo]
   revision looper_branch
-  ssh_wrapper git_ssh_wrapper_looper_repo
+  ssh_wrapper git_ssh_wrapper_looper
   user service_account
   group service_account
   action :force_deploy
@@ -151,9 +153,9 @@ end
 
 # clone the repo for the builder account
 deploy_revision test_src_dir do
-  repo node[:test_looper][:target_repo]
+  repo "git@github.com:#{node_looper[:target_repo_owner]}/#{node_looper[:target_repo]}.git"
   revision "master"
-  ssh_wrapper git_ssh_wrapper_target_repo
+  ssh_wrapper git_ssh_wrapper_target
   user service_account
   group service_account
   action :force_deploy
@@ -174,8 +176,8 @@ template config_file do
     :worker_test_data_dir => test_data_dir,
     :worker_ccache_dir => ccache_dir,
     :worker_build_cache_dir => build_cache_dir,
-    :ec2_test_result_bucket => node[:test_looper][:test_results_bucket],
-    :ec2_builds_bucket => node[:test_looper][:builds_bucket]
+    :ec2_test_result_bucket => node_looper[:test_results_bucket],
+    :ec2_builds_bucket => node_looper[:builds_bucket]
     })
 end
 
@@ -184,8 +186,8 @@ template "/etc/init/test-looper.conf" do
   variables({
       :service_account => service_account,
       :src_dir => src_dir,
-      :git_ssh_wrapper => git_ssh_wrapper_looper_repo,
-      :git_target_ssh_wrapper => git_ssh_wrapper_target_repo,
+      :git_ssh_wrapper => git_ssh_wrapper_looper,
+      :git_target_ssh_wrapper => git_ssh_wrapper_target,
       :log_file => log_file,
       :stack_file => stack_file,
       :looper_branch => looper_branch,
