@@ -7,7 +7,6 @@
 # Creates user accounts, directories, ssh keys, and other
 # fairly static resources on the machine
 
-env = node[:test_looper][:environment] # prod, dev, etc.
 dnsname = node[:test_looper_server][:dnsname]
 Chef::Application.fatal("Missing test_looper_server::dnsname attribute") if dnsname.empty?
 
@@ -42,9 +41,10 @@ if node[:no_aws]
 else
   require 'aws-sdk'
   s3 = AWS::S3.new
+  env = node[:test_looper][:environment] # prod, dev, etc.
   bucket = node[:test_looper][:data_bag_bucket]
   data_bag_key = node[:test_looper_server][:data_bag_key]
-  encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
+  encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects["#{env}/#{data_bag_key}"].read)
   secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
 end
 
@@ -193,10 +193,10 @@ template config_file do
     :server_port => node[:test_looper_server][:port],
     :server_http_port => http_port,
     :server_tasks_dir => tasks_root_dir,
-    :github_app_id => secrets[env]['github_oauth_app_client_id'],
-    :github_app_secret => secrets[env]['github_oauth_app_client_secret'],
+    :github_app_id => secrets['github_oauth_app_client_id'],
+    :github_app_secret => secrets['github_oauth_app_client_secret'],
     :github_access_token => secrets['github_api_token'],
-    :github_webhook_secret => secrets[env]['github_webhook_secret'],
+    :github_webhook_secret => secrets['github_webhook_secret'],
     :github_test_looper_branch => looper_branch,
     :github_baseline_branch => node[:test_looper_server][:baseline_branch],
     :github_baseline_depth => node[:test_looper_server][:baseline_depth],

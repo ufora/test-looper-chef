@@ -33,9 +33,10 @@ if node[:no_aws]
 else
 require 'aws-sdk'
   s3 = AWS::S3.new
+  env = node[:test_looper][:environment] # prod, dev, etc.
   bucket = node[:test_looper][:data_bag_bucket]
   data_bag_key = node[:test_looper_worker][:data_bag_key]
-  encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects[data_bag_key].read)
+  encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects["#{env}/#{data_bag_key}"].read)
   encrypted_data_bag_key = node[:test_looper][:encrypted_data_bag_key].gsub('\n', "\n").strip
   secrets = Chef::EncryptedDataBagItem.new(encrypted_data_bag, encrypted_data_bag_key)
 end
