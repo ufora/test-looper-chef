@@ -50,6 +50,7 @@ default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "8"
 
 default["test_looper_server"]["baseline_branch"] = "origin/master"
 default["test_looper_server"]["baseline_depth"] = "20"
+default["test_looper_server"]["test_definitions_path"] = "test_scripts/testDefinitions.json"
 
 default["test_looper_server"]["command_options"] = ""
 

@@ -206,6 +206,7 @@ template config_file do
     :github_baseline_depth => node_server[:baseline_depth],
     :github_target_repo => node_looper[:target_repo],
     :github_target_repo_owner => node_looper[:target_repo_owner],
+    :github_test_definitions_path => node_server[:test_definitions_path],
     :ec2_security_group => ec2_security_group,
     :ec2_ami => ec2_looper_ami,
     :ec2_worker_role_name => ec2_worker_role_name,
