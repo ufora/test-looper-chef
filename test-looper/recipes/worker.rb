@@ -172,6 +172,7 @@ template config_file do
   group service_account
   variables({
     :worker_repo_path => "#{test_src_dir}/current",
+    :worker_repo_name => node_looper[:target_repo],
     :worker_core_dump_dir => core_dump_dir,
     :worker_test_data_dir => test_data_dir,
     :worker_ccache_dir => ccache_dir,
