@@ -163,8 +163,9 @@ deploy_revision src_dir do
   symlinks.clear
 end
 
+repo_host = node_looper[:src_ctrl] == "github" ? "github.com" : "bitbucket.org"
 deploy_revision target_repo_dir do
-  repo "git@github.com:#{node_looper[:target_repo_owner]}/#{node_looper[:target_repo]}.git"
+  repo "git@#{repo_host}:#{node_looper[:target_repo_owner]}/#{node_looper[:target_repo]}.git"
   revision "master"
   ssh_wrapper git_ssh_wrapper_target
   user service_account
@@ -197,8 +198,9 @@ template config_file do
     :server_port => node_server[:port],
     :server_http_port => http_port,
     :server_tasks_dir => tasks_root_dir,
-    :github_app_id => secrets['github_oauth_app_client_id'],
-    :github_app_secret => secrets['github_oauth_app_client_secret'],
+    :src_ctrl => node_looper[:src_ctrl],
+    :github_oauth_key => secrets['github_oauth_app_client_id'],
+    :github_oauth_secret => secrets['github_oauth_app_client_secret'],
     :github_access_token => secrets['github_api_token'],
     :github_webhook_secret => secrets['github_webhook_secret'],
     :github_test_looper_branch => looper_branch,

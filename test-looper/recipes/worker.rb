@@ -152,8 +152,9 @@ deploy_revision src_dir do
 end
 
 # clone the repo for the builder account
+repo_host = node_looper[:src_ctrl] == "github" ? "github.com" : "bitbucket.org"
 deploy_revision test_src_dir do
-  repo "git@github.com:#{node_looper[:target_repo_owner]}/#{node_looper[:target_repo]}.git"
+  repo "git@#{repo_host}:#{node_looper[:target_repo_owner]}/#{node_looper[:target_repo]}.git"
   revision "master"
   ssh_wrapper git_ssh_wrapper_target
   user service_account
