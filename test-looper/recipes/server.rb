@@ -39,12 +39,12 @@ log_file = "/var/log/test-looper-server.log"
 stack_file = "#{log_file}.stack"
 
 
+env = node_looper[:environment] # prod, dev, etc.
 if node[:no_aws]
-  secrets = Chef::EncryptedDataBagItem.load('test-looper', 'server')
+  secrets = Chef::EncryptedDataBagItem.load(env, 'server')
 else
   require 'aws-sdk'
   s3 = AWS::S3.new
-  env = node_looper[:environment] # prod, dev, etc.
   bucket = node_looper[:data_bag_bucket]
   data_bag_key = node_server[:data_bag_key]
   encrypted_data_bag = JSON.parse(s3.buckets[bucket].objects["#{env}/#{data_bag_key}"].read)
@@ -180,13 +180,6 @@ end
 
 
 http_port = node_server[:http_port]
-ec2_security_group = node_server[:worker_security_group]
-ec2_looper_ami = node_server[:worker_ami]
-ec2_worker_role_name = node_server[:ec2_worker_role_name]
-ec2_worker_ssh_key_name = node_server[:ec2_worker_ssh_key_name]
-ec2_worker_root_volume_size_gb = node_server[:ec2_worker_root_volume_size_gb]
-ec2_test_result_bucket = node_looper[:test_results_bucket]
-ec2_builds_bucket = node_looper[:builds_bucket]
 worker_install_dir = node[:test_looper_worker][:install_dir]
 worker_config_file = "#{worker_install_dir}/#{node[:test_looper_worker][:config_file]}"
 
@@ -209,13 +202,15 @@ template config_file do
     :github_target_repo => node_looper[:target_repo],
     :github_target_repo_owner => node_looper[:target_repo_owner],
     :github_test_definitions_path => node_server[:test_definitions_path],
-    :ec2_security_group => ec2_security_group,
-    :ec2_ami => ec2_looper_ami,
-    :ec2_worker_role_name => ec2_worker_role_name,
-    :ec2_worker_ssh_key_name => ec2_worker_ssh_key_name,
-    :ec2_worker_root_volume_size_gb => ec2_worker_root_volume_size_gb,
-    :ec2_test_result_bucket => ec2_test_result_bucket,
-    :ec2_builds_bucket => ec2_builds_bucket,
+    :ec2_security_group => node_server[:worker_security_group],
+    :ec2_ami => node_server[:worker_ami],
+    :ec2_alt_ami => node_server[:worker_alt_ami],
+    :ec2_alt_ami_instance_types => node_server[:worker_alt_ami_instance_types],
+    :ec2_worker_role_name => node_server[:ec2_worker_role_name],
+    :ec2_worker_ssh_key_name => node_server[:ec2_worker_ssh_key_name],
+    :ec2_worker_root_volume_size_gb => node_server[:ec2_worker_root_volume_size_gb],
+    :ec2_test_result_bucket => node_looper[:test_results_bucket],
+    :ec2_builds_bucket => node_looper[:builds_bucket],
     :ec2_vpc_subnets => node_server[:vpc_subnets],
     :worker_install_dir => node[:test_looper_worker][:install_dir],
     :worker_config_file => worker_config_file,

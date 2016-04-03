@@ -5,6 +5,7 @@ default["test_looper"]["encrypted_data_bag_key"] = ""
 default["test_looper_server"]["dnsname"] = ""
 default["test_looper_server"]["vpc_subnets"] = {} # a map from AZ to subnet-id
 default["test_looper_server"]["worker_ami"] = ""
+default["test_looper_server"]["worker_alt_ami"] = ""
 default["test_looper_server"]["worker_security_group"] = ""
 default["test_looper"]["test_results_bucket"] = ""
 default["test_looper"]["builds_bucket"] = ""
@@ -45,6 +46,7 @@ default["test_looper_server"]["ssl_cert_prefix"] = "test-looper"
 default["test_looper_server"]["port"] = "7531"
 default["test_looper_server"]["http_port"] = "8888"
 
+default["test_looper_server"]["worker_alt_ami_instance_types"] = ["c3.xlarge", "c3.8xlarge"]
 default["test_looper_server"]["ec2_worker_role_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_ssh_key_name"] = "test-looper"
 default["test_looper_server"]["ec2_worker_root_volume_size_gb"] = "8"
