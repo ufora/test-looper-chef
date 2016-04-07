@@ -24,7 +24,6 @@ ssh_dir = "#{install_dir}/.ssh"
 deploy_key_looper = "#{ssh_dir}/#{node_looper[:github_deploy_key_looper]}"
 deploy_key_target = "#{ssh_dir}/#{node_looper[:github_deploy_key_target]}"
 
-tasks_root_dir = "#{install_dir}/tasks"
 deploy_dir = "#{install_dir}/deploy-src"
 
 config_file = "#{install_dir}/test-looper-server.conf"
@@ -61,7 +60,7 @@ user service_account do
 end
 
 # Create installation and supporting directories
-[install_dir, ssh_dir, tasks_root_dir, deploy_dir].each do |path|
+[install_dir, ssh_dir, deploy_dir].each do |path|
   directory path do
     owner service_account
     group service_account
@@ -190,7 +189,7 @@ template config_file do
   variables({
     :server_port => node_server[:port],
     :server_http_port => http_port,
-    :server_tasks_dir => tasks_root_dir,
+    :server_test_looper_webhook_secret => secrets['test_looper_webhook_secret'],
     :src_ctrl => node_looper[:src_ctrl],
     :github_oauth_key => secrets['github_oauth_app_client_id'],
     :github_oauth_secret => secrets['github_oauth_app_client_secret'],
