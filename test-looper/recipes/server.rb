@@ -7,6 +7,8 @@
 # Creates user accounts, directories, ssh keys, and other
 # fairly static resources on the machine
 
+require 'json'
+
 node_looper = node[:test_looper]
 node_server = node[:test_looper_server]
 
@@ -211,6 +213,7 @@ template config_file do
     :ec2_test_result_bucket => node_looper[:test_results_bucket],
     :ec2_builds_bucket => node_looper[:builds_bucket],
     :ec2_vpc_subnets => node_server[:vpc_subnets],
+    :ec2_object_tags => node_server[:ec2_object_tags].to_json,
     :worker_install_dir => node[:test_looper_worker][:install_dir],
     :worker_config_file => worker_config_file,
     :worker_core_dump_dir => node[:test_looper_worker][:core_dump_dir]

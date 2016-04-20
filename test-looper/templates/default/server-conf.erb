@@ -28,7 +28,8 @@
     "worker_root_volume_size_gb": <%= @ec2_worker_root_volume_size_gb %>,
     "test_result_bucket": "<%= @ec2_test_result_bucket %>",
     "builds_bucket": "<%= @ec2_builds_bucket %>",
-    "vpc_subnets": <%= @ec2_vpc_subnets.to_json %>
+    "vpc_subnets": <%= @ec2_vpc_subnets.to_json %>,
+    "object_tags": <%= @ec2_object_tags %>
     },
 
   "worker": {
