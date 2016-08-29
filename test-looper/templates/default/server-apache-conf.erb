@@ -5,6 +5,9 @@
 
 
 <VirtualHost *:443>
+    ServerName <%= @params[:server_name] %>
+    DocumentRoot <%= @params[:doc_root] %>
+
     SSLEngine On
     SSLProxyEngine On
     SSLProtocol all -SSLv3
@@ -14,8 +17,9 @@
     SSLCertificateKeyFile    <%= @params[:cert_key] %>
     SSLCertificateChainFile  <%= @params[:cert_chain] %>
 
+    ProxyPass /css !
+    ProxyPass /content !
 
-    ServerAlias ci
     <Proxy http://localhost:<%= @params[:http_port] %>/>
         Require all granted
     </Proxy>

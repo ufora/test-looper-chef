@@ -242,6 +242,7 @@ end
 web_app "test-looper-proxy" do
   template "server-apache-conf.erb"
   server_name node_server[:dnsname]
+  doc_root "#{service_dir}/test_looper/server"
   cert_file public_cert_file
   cert_key private_key_file
   cert_chain cert_chain_file
