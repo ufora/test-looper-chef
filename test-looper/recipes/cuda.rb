@@ -2,15 +2,15 @@
 kernel_release = node['kernel']['release']
 apt_package "linux-headers-#{kernel_release}" do
     action :install
-    options '--force-yes'
+    options '--yes'
 end
 apt_package "linux-image-#{kernel_release}" do
     action :install
-    options '--force-yes'
+    options '--yes'
 end
 apt_package "linux-image-extra-#{kernel_release}" do
     action :install
-    options '--force-yes'
+    options '--yes'
 end
 
 
@@ -25,52 +25,52 @@ dpkg_package 'cuda-repo-ubuntu1604_8.0.44-1_amd64' do
 end
 package 'nvidia-367' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '367.48-0ubuntu1'
 end
 package 'nvidia-367-dev' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '367.48-0ubuntu1'
 end
 package 'nvidia-opencl-icd-367' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '367.48-0ubuntu1'
 end
 package 'cuda-core-8-0' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '8.0.44-1'
 end
 package 'cuda-cudart-8-0' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '8.0.44-1'
 end
 package 'cuda-cudart-dev-8-0' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '8.0.44-1'
 end
 package 'cuda-driver-dev-8-0' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '8.0.44-1'
 end
 package 'cuda-drivers' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '367.48-1'
 end
 package 'cuda-nvrtc-8-0' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '8.0.44-1'
 end
 package 'libcuda1-367' do
   action :install
-  options '--no-install-recommends --force-yes'
+  options '--no-install-recommends --yes'
   version '367.48-0ubuntu1'
 end
 
