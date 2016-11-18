@@ -23,33 +23,55 @@ dpkg_package 'cuda-repo-ubuntu1604_8.0.44-1_amd64' do
   source '/tmp/cuda-repo-ubuntu1604_8.0.44-1_amd64.deb'
   notifies :run, 'execute[apt-get update]', :immediately
 end
+package 'nvidia-367' do
+  action :install
+  options '--no-install-recommends --force-yes'
+  version '367.48-0ubuntu1'
+end
+package 'nvidia-367-dev' do
+  action :install
+  options '--no-install-recommends --force-yes'
+  version '367.48-0ubuntu1'
+end
+package 'nvidia-opencl-icd-367' do
+  action :install
+  options '--no-install-recommends --force-yes'
+  version '367.48-0ubuntu1'
+end
 package 'cuda-core-8-0' do
   action :install
   options '--no-install-recommends --force-yes'
+  version '8.0.44-1'
 end
 package 'cuda-cudart-8-0' do
   action :install
   options '--no-install-recommends --force-yes'
+  version '8.0.44-1'
 end
 package 'cuda-cudart-dev-8-0' do
   action :install
   options '--no-install-recommends --force-yes'
+  version '8.0.44-1'
 end
 package 'cuda-driver-dev-8-0' do
   action :install
   options '--no-install-recommends --force-yes'
+  version '8.0.44-1'
 end
 package 'cuda-drivers' do
   action :install
   options '--no-install-recommends --force-yes'
+  version '367.48-1'
 end
 package 'cuda-nvrtc-8-0' do
   action :install
   options '--no-install-recommends --force-yes'
+  version '8.0.44-1'
 end
 package 'libcuda1-367' do
   action :install
   options '--no-install-recommends --force-yes'
+  version '367.48-0ubuntu1'
 end
 
 
